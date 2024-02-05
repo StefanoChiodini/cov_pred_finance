@@ -6,7 +6,7 @@ import pandas as pd
 
 from cvx.covariance.regularization import em_regularize_covariance
 from cvx.covariance.regularization import regularize_covariance
-from experiments.utils.iterated_ewma_vec import ewma
+from .iterated_ewma_vec import ewma
 
 
 def _realized_covariance(returns):
@@ -34,14 +34,15 @@ def realized_volas(returns):
 
 
 def MSE(returns, covariances):
+    '''
+    this function calculates the Mean Squared Error between predicted and realized covariance matrices for financial returns.
+    '''
     returns_shifted = returns.shift(-1)
 
     MSEs = []
     for time, cov in covariances.items():
-        realized_cov = returns_shifted.loc[time].values.reshape(
-            -1, 1
-        ) @ returns_shifted.loc[time].values.reshape(1, -1)
-        MSEs.append(np.linalg.norm(cov - realized_cov) ** 2)
+        realized_cov = returns_shifted.loc[time].values.reshape(-1, 1) @ returns_shifted.loc[time].values.reshape(1, -1) # here there is a reshape to a column vector (reshape(-1, 1)) and a row vector (reshape(1, -1))
+        MSEs.append(np.linalg.norm(cov - realized_cov) ** 2) # this is a frobenius norm
 
     return pd.Series(MSEs, index=covariances.keys())
 
@@ -269,6 +270,10 @@ def rolling_window(returns, memory, min_periods=20):
             Sigmas[t] = alpha_new / alpha_old * Sigmas[t - 1] + alpha_new * (
                 np.outer(returns[t], returns[t])
             )
+        
+        # TODO: delete this print; is for testing purposes
+        #print("returns[t]: ", returns[t])  
+        #print("returns[t].shape: ", returns[t].shape)
 
     Sigmas = Sigmas[min_periods - 1 :]
     times = times[min_periods - 1 :]
@@ -302,7 +307,7 @@ def from_row_matrix_to_covariance(M, n):
     Sigmas = []
     T = M.shape[0]
     for t in range(T):
-        Sigmas.append(from_row_to_covariance(M[t], n))
+        Sigmas.append(from_row_to_covariance(M[t], n)) # this is a list of covariance matrices
     return np.array(Sigmas)
 
 

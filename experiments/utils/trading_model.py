@@ -32,18 +32,26 @@ class Trader:
     def __init__(self, returns, Sigma_hats, r_hats=None, rhos=None):
         """
         param R: nxT pandas dataframe of T returns from n assets; index is date.
-        param Sigma_hats: dictionary of causal covariance matrices; keys are
-        dates; values are n x n pandas dataframes. They are causal in the sense that
-        Sigma_hat[time] does NOT depend on returns[time]
+        param Sigma_hats: dictionary of causal covariance matrices; keys are dates; values are n x n pandas dataframes(so values are covariance matrixes). They are causal in the sense that
+            Sigma_hat[time] does NOT depend on returns[time]
         param r_hats: pandas DataFrame of causal expected returns, i.e., r_hat[time]
-        does NOT depend on returns[time]
+            does NOT depend on returns[time]
         """
+        # here returns are still the returns of the csv file but filtered with the backtest period
         self.returns = returns
+
+        # here sigmas are the sigmas calculated with the predictor mathematical model formula
         self.Sigma_hats = Sigma_hats
+
+        # r_ hats are the expected returns 
         self.r_hats = r_hats
+
+        # It might be used later to indicate whether the portfolio has been diluted with cash or not.
         self.diluted = False
 
         assert list(self.returns.index) == list(self.Sigma_hats.keys())
+
+        # Generate list of standard deviations; so sigma_hats is a list of standard deviations
         sigma_hats = []
         for t in self.returns.index:
             Sigma_hat_t = self.Sigma_hats[t].values
@@ -66,7 +74,7 @@ class Trader:
         assert list(self.returns.index) == list(self.sigma_hats.index)
         assert list(self.returns.columns) == list(self.sigma_hats.columns)
 
-        # Generate Choleksy factors
+        # Generate Choleksy factors: self.L_inv_hats: A dictionary to store the inverse of the Cholesky factor (L_inv) of the covariance matrix for each time period. This is likely used for optimization or risk management calculations later in the class.
         self.L_inv_hats = {}
         for time in returns.index:
             self.L_inv_hats[time] = _get_L_inv(
@@ -213,12 +221,27 @@ class Trader:
             print("Already trades cash...")
             return None
         ws_new = []
+        print("changing weights to achieve desired volatility, using sigma hat obtained from the covariance formula of the paper")
+        
+        # The function iterates over each date (t) in the index of the returns. For each date,
+        # it extracts the covariance matrix (Sigma_hat_t) and the current weights (w_t) of the portfolio.
+        # It calculates the current portfolio's volatility (sigma_hat -> he square root of this variance is the standard deviation, also known as volatility) 
+        # using the weights and the covariance matrix. Then theta is calculated: theta is a scaling factor to adjust the weights of the assets in the portfolio.
+        # Finally, it computes the new weights (w_t_new) by multiplying the original weights by theta and adding the remaining weight to cash(1- theta).
         for i, t in enumerate(self.returns.index):
             Sigma_hat_t = self.Sigma_hats[t].values
             w_t = self.ws[i].reshape(-1, 1)
             sigma_hat = np.sqrt(w_t[: self.n].T @ Sigma_hat_t @ w_t[: self.n])
 
+            '''
+            Ratio des/hat this ratio compares the desired volatility to the current volatility. If the current volatility is higher than desired, this ratio will be less than 1, indicating that the portfolio's risk needs to be reduced. Conversely, if the current volatility is lower than desired, the ratio will be greater than 1, suggesting an increase in risk is acceptable.
+            Square Root of Annualization Factor: Applying the square root to the annualization factor (1/252) converts the annual adjustment back to a daily scale. This is necessary because the portfolio adjustments are typically made on a daily basis, and the target volatility is an annualized figure.
+
+            This resulting factor is then used to scale the current weights of the assets in the portfolio. The new weights will be a fraction (
+            of the original weights, with the remaining portion of the portfolio allocated to a risk-free asset (like cash) to achieve the desired volatility level.
+            '''
             theta = np.sqrt(1 / 252) * (sigma_des / sigma_hat)
+
             w_t_new = np.vstack([theta * w_t, 1 - theta])
             ws_new.append(w_t_new.flatten())
 
@@ -255,6 +278,8 @@ class Trader:
         rhos=None,
     ):
         """
+        this function is used to calculate the correct/best weight for each asset in the portfolio.
+        It creates a ws matrix that is the matrix of weights
         param portfolio_type: type of portfolio to backtest. Options are "min_risk", "vol_cont", "risk_parity", "mean_variance".
         param cons: list of constraints to impose on the optimization problem.
         param rhos: pandas DataFrame of uncertainty in expected returns
@@ -265,6 +290,10 @@ class Trader:
         self.additonal_cons = additonal_cons
         self.C_speedup = C_speedup
 
+        # initialize ws and obj
+        #ws = np.zeros((self.T, self.n)) # TODO IN CASE OF ERROR UNCOMMENT THIS
+        #obj = np.zeros(self.T) # TODO IN CASE OF ERROR UNCOMMENT THIS
+
         # TODO: ugly to have this here
         if rhos is not None:
             self.rhos = rhos.loc[self.returns.index]
@@ -272,13 +301,10 @@ class Trader:
             self.rhos = rhos
 
         if portfolio_type == "eq_weighted":
+            # the method creates a weight matrix ws where each asset in the portfolio has an equal weight. The weights are determined by dividing one by the number of assets (self.n).
             ws = np.ones((self.T, self.n)) / self.n
 
-        if (
-            portfolio_type == "min_risk"
-            or portfolio_type == "vol_cont"
-            or portfolio_type == "robust_min_risk"
-        ):
+        if (portfolio_type == "min_risk" or portfolio_type == "vol_cont" or portfolio_type == "robust_min_risk"):
             # get the minimum risk portfolio
             w = cp.Variable((self.n, 1))
             L_inv_param = cp.Parameter((self.n, self.n))
@@ -569,6 +595,8 @@ class Trader:
 
             ws = np.array(ws)
 
+        # weights of the portfolio saved in the trader class; ws is a matrix of weights where each row is the weights of the portfolio at a given time
+        # weights are a crucial component as they determine how much of the portfolio's total capital is allocated to each asset
         self.ws = ws.reshape(self.T, -1)
 
     def get_total_returns(self, diluted_with_cash=False, sigma_des=None, rf=None):
@@ -576,27 +604,56 @@ class Trader:
         Computes total daily returns of the portfolio from the weights and indivudal asset returns.
         """
         rets = []
+        # print the predictor name, weights, and returns
         for t in range(self.T):
-            w_t = self.ws[t]
+            # are the weights of the portfolio at time t; not the weights assigned from the predictor but from the portfolio
+            # so for example in the equal weighted portfolio, the weights are always 1/25(because we have 25 assets in the stock portfolio)
+            # and the weights are always 1/25 even if the predictor is for example EWMA;->
+            # name:  EWMA
+            # w_t:  [0.04 0.04 0.04 0.04 0.04 0.04 0.04 0.04 0.04 0.04 0.04 0.04 0.04 0.04
+            # 0.04 0.04 0.04 0.04 0.04 0.04 0.04 0.04 0.04 0.04 0.04]
+            w_t = self.ws[t] # these are the weights obtained from the backtest function; and are the portfolio weights; not the predictor weights(so the covariance matrix formula of the paper is not used here
+                
+            # these are the returns obtained from the SP500_top25_adjusted.csv file
             r_t = self.returns.iloc[t].values.reshape(-1, 1)
-            if (
-                self.portfolio_type == "vol_cont"
-                or self.portfolio_type == "mean_variance"
-                or self.portfolio_type == "mean_variance2"
-                or diluted_with_cash
-            ):
+
+            if (self.portfolio_type == "vol_cont" or self.portfolio_type == "mean_variance" or self.portfolio_type == "mean_variance2" or diluted_with_cash):
                 if diluted_with_cash:
                     if not self.diluted == True:
                         assert sigma_des is not None
                         self.dilute_with_cash(sigma_des)
                     w_t = self.ws_diluted[t]
+                        
                 if rf is None:
                     r_t = np.vstack([r_t, 0])  # Add cash return (last)
                 else:
                     rf_t = rf.iloc[t]
                     r_t = np.vstack([r_t, rf_t])
             rets.append(np.dot(w_t, r_t))
-        self.rets = np.array(rets)
+            temp = t
+        
+        # testing purpose only ########################################################
+        #w_t = self.ws[temp]
+        #r_t = self.returns.iloc[temp].values.reshape(-1, 1)
+        #print("w_t: ", w_t) # TODO: remove this print
+        #print("r_t: ", r_t) # TODO: remove this print
+        #print("w_t shape: ", w_t.shape) # TODO: remove this print
+        #print("r_t shape: ", r_t.shape) # TODO: remove this print
+        # sum all the weights inside w_t and compare with 1
+        sum_w_t = 0
+        for i in range(len(w_t)):
+            sum_w_t += w_t[i]
+        
+        print("sum_w_t: ", sum_w_t) # TODO: remove this print
+        ################################################################################
+        
+        #print("rets content: ", rets) # TODO: remove this print
+        #rets content:  [array([0.00566938]), array([-0.00129673]), array([0.00805442]), array([-4.19301648e-05]), array([0.
+        #print("rets shape: ", np.array(rets).shape) # TODO: remove this print
+        #rets shape:  (2770, 1)
+
+        self.rets = np.array(rets) #This array represents the total daily returns of the portfolio over the entire period self.T.
+
 
     def get_portfolio_growth(self):
         """
@@ -606,7 +663,11 @@ class Trader:
         Vs = [np.array([1])]
         for t, r_t in enumerate(self.rets):
             Vs.append(Vs[t] * (1 + r_t / self.adjust_factor))
-        self.Vs = np.array(Vs[1:])
+
+        self.Vs = np.array(Vs[1:]) # This array represents the cumulative growth of the portfolio over the entire period.
+
+        #print("self.Vs content: ", self.Vs) # TODO: remove this print
+        #print("self.Vs shape: ", self.Vs.shape) # TODO: remove this print
 
     def compute_max_drawdown(self):
         """
@@ -634,6 +695,8 @@ class Trader:
         Computes the avg return, stdev, sharpe ratio, and max drawdown of the portfolio.
         Note: Run backtest first.
         """
+        # diluted_with_cash = False # TODO: REMOVE ABSOLUTELY THIS PRINT -> if enabled i will have always the same performance results in every indicator
+        # print("self.adjust_factor: ", self.adjust_factor) # TODO: remove this print -> it is 1
         self.get_total_returns(
             diluted_with_cash=diluted_with_cash, sigma_des=sigma_des, rf=rf
         )

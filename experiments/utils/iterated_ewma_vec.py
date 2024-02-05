@@ -66,6 +66,7 @@ def get_next_ewma(EWMA, y_last, t, beta, clip_at=None, min_periods=None):
 
 def ewma(y, halflife, clip_at=None, min_periods=None):
     """
+    this function implement the mathematical formula written inside the paper
     param y: array with measurements for times t=1,2,...,T=len(y)
     halflife: EWMA half life
     param clip_at: clip y_last at  +- clip_at*EWMA (optional)
