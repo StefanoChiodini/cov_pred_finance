@@ -9,31 +9,24 @@ packages = [{include = "cvx"}]
 homepage = "https://www.cvxgrp.org/cvxcovariance"
 
 [tool.poetry.dependencies]
-python = ">=3.9.0,<3.12"
+python = ">=3.9.0"
 pandas = "*"
 cvxpy = "*"
 scipy = "*"
 
 [tool.poetry.group.test.dependencies]
-pytest = "7.4.3"
-pytest-cov = "4.1.0"
-mock = "*"
+pytest = "*"
+pytest-cov = "*"
+pre-commit = "*"
 
-[tool.poetry.dev-dependencies]
-seaborn = "*"
+[tool.poetry.group.dev.dependencies]
 arch = "*"
 tqdm = "*"
 scikit-learn = "*"
-matplotlib = "*"
 loguru = "*"
 plotly = "*"
 cvxsimulator = "*"
-cvxbacktest = { git = "https://github.com/cvxgrp/cvxbacktest", branch = "main"}
-cvxrisk = { git = "https://github.com/cvxgrp/cvxrisk", branch = "main"}
-yfinance = "*"
 statsmodels = "*"
-refinitiv-data = "*"
-openpyxl = "*"
 
 [build-system]
 requires = ["poetry>=1.6.0"]
