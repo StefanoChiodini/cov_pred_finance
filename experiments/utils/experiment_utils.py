@@ -204,13 +204,8 @@ def log_likelihood(returns, Sigmas, means=None, scale=1):
     Sigma_invs = np.linalg.inv(Sigmas)
 
     return (
-        -n / 2 * np.log(2 * np.pi)
-        - 1 / 2 * np.log(dets)
-        - 1
-        / 2
-        * np.transpose(returns - means, axes=(0, 2, 1))
-        @ Sigma_invs
-        @ (returns - means)
+        -n / 2 * np.log(2 * np.pi) - 1 / 2 * np.log(dets) - 1/2
+        * np.transpose(returns - means, axes=(0, 2, 1)) @ Sigma_invs @ (returns - means)
     ).flatten()
 
 

@@ -4,12 +4,12 @@ MSEstd: 0.000030
 MSEmax: 0.000103
 
 meanRegret: 1.00
-stdRegret: 0.40
+stdRegret: 0.50
 maxRegret: 1.70
 
 meanLoglikelihoodRW: 7.60
-stdLoglikelihoodRW: 0.90
-maxLoglikelihoodRW: 8.80
+stdLoglikelihoodRW: 1.00
+maxLoglikelihoodRW: 9.10
 
 meanLoglikelihoodPRESCIENT: 8.60
 stdLoglikelihoodPRESCIENT: 0.90
@@ -20,52 +20,52 @@ MSEmean: 0.000013
 MSEstd: 0.000032
 MSEmax: 0.000108
 
-meanRegret: 0.50
+meanRegret: 0.40
 stdRegret: 0.20
 maxRegret: 0.80
 
-meanLoglikelihoodRW: 8.10
-stdLoglikelihoodRW: 0.90
-maxLoglikelihoodRW: 9.20
+meanLoglikelihoodRW: 8.20
+stdLoglikelihoodRW: 1.00
+maxLoglikelihoodRW: 9.70
 
 RWMEMORY:			30
 MSEmean: 0.000013
 MSEstd: 0.000033
 MSEmax: 0.000111
 
-meanRegret: 0.40
+meanRegret: 0.30
 stdRegret: 0.20
 maxRegret: 0.60
 
-meanLoglikelihoodRW: 8.20
-stdLoglikelihoodRW: 1.00
-maxLoglikelihoodRW: 9.30
+meanLoglikelihoodRW: 8.30
+stdLoglikelihoodRW: 1.10
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			40
 MSEmean: 0.000014
 MSEstd: 0.000034
 MSEmax: 0.000114
 
-meanRegret: 0.40
+meanRegret: 0.30
 stdRegret: 0.20
 maxRegret: 0.80
 
-meanLoglikelihoodRW: 8.20
-stdLoglikelihoodRW: 1.00
-maxLoglikelihoodRW: 9.30
+meanLoglikelihoodRW: 8.30
+stdLoglikelihoodRW: 1.10
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			50
 MSEmean: 0.000014
 MSEstd: 0.000035
 MSEmax: 0.000117
 
-meanRegret: 0.40
+meanRegret: 0.30
 stdRegret: 0.30
 maxRegret: 1.20
 
-meanLoglikelihoodRW: 8.20
+meanLoglikelihoodRW: 8.30
 stdLoglikelihoodRW: 1.20
-maxLoglikelihoodRW: 9.30
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			60
 MSEmean: 0.000014
@@ -73,12 +73,12 @@ MSEstd: 0.000035
 MSEmax: 0.000119
 
 meanRegret: 0.40
-stdRegret: 0.40
+stdRegret: 0.50
 maxRegret: 1.60
 
-meanLoglikelihoodRW: 8.20
+meanLoglikelihoodRW: 8.30
 stdLoglikelihoodRW: 1.30
-maxLoglikelihoodRW: 9.50
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			70
 MSEmean: 0.000014
@@ -89,113 +89,113 @@ meanRegret: 0.40
 stdRegret: 0.50
 maxRegret: 1.90
 
-meanLoglikelihoodRW: 8.20
+meanLoglikelihoodRW: 8.30
 stdLoglikelihoodRW: 1.40
-maxLoglikelihoodRW: 9.50
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			80
 MSEmean: 0.000014
 MSEstd: 0.000036
 MSEmax: 0.000122
 
-meanRegret: 0.50
-stdRegret: 0.50
+meanRegret: 0.40
+stdRegret: 0.60
 maxRegret: 2.00
 
 meanLoglikelihoodRW: 8.20
 stdLoglikelihoodRW: 1.40
-maxLoglikelihoodRW: 9.50
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			90
 MSEmean: 0.000014
 MSEstd: 0.000036
 MSEmax: 0.000123
 
-meanRegret: 0.50
-stdRegret: 0.50
+meanRegret: 0.40
+stdRegret: 0.60
 maxRegret: 2.10
 
-meanLoglikelihoodRW: 8.10
-stdLoglikelihoodRW: 1.40
-maxLoglikelihoodRW: 9.50
+meanLoglikelihoodRW: 8.20
+stdLoglikelihoodRW: 1.50
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			100
 MSEmean: 0.000014
 MSEstd: 0.000037
 MSEmax: 0.000124
 
-meanRegret: 0.50
+meanRegret: 0.40
 stdRegret: 0.50
 maxRegret: 1.90
 
-meanLoglikelihoodRW: 8.10
-stdLoglikelihoodRW: 1.30
-maxLoglikelihoodRW: 9.50
+meanLoglikelihoodRW: 8.20
+stdLoglikelihoodRW: 1.40
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			110
 MSEmean: 0.000014
 MSEstd: 0.000037
 MSEmax: 0.000124
 
-meanRegret: 0.50
-stdRegret: 0.50
+meanRegret: 0.40
+stdRegret: 0.60
 maxRegret: 2.00
 
-meanLoglikelihoodRW: 8.10
+meanLoglikelihoodRW: 8.20
 stdLoglikelihoodRW: 1.40
-maxLoglikelihoodRW: 9.40
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			120
 MSEmean: 0.000014
 MSEstd: 0.000037
 MSEmax: 0.000125
 
-meanRegret: 0.50
+meanRegret: 0.40
 stdRegret: 0.60
 maxRegret: 2.20
 
-meanLoglikelihoodRW: 8.10
-stdLoglikelihoodRW: 1.40
-maxLoglikelihoodRW: 9.40
+meanLoglikelihoodRW: 8.20
+stdLoglikelihoodRW: 1.50
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			130
 MSEmean: 0.000014
 MSEstd: 0.000037
 MSEmax: 0.000125
 
-meanRegret: 0.50
+meanRegret: 0.40
 stdRegret: 0.60
 maxRegret: 2.20
 
-meanLoglikelihoodRW: 8.10
-stdLoglikelihoodRW: 1.40
-maxLoglikelihoodRW: 9.40
+meanLoglikelihoodRW: 8.20
+stdLoglikelihoodRW: 1.50
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			140
 MSEmean: 0.000014
 MSEstd: 0.000037
 MSEmax: 0.000125
 
-meanRegret: 0.50
+meanRegret: 0.40
 stdRegret: 0.60
 maxRegret: 2.20
 
-meanLoglikelihoodRW: 8.10
-stdLoglikelihoodRW: 1.40
-maxLoglikelihoodRW: 9.40
+meanLoglikelihoodRW: 8.20
+stdLoglikelihoodRW: 1.50
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			150
 MSEmean: 0.000014
 MSEstd: 0.000037
 MSEmax: 0.000126
 
-meanRegret: 0.50
+meanRegret: 0.40
 stdRegret: 0.60
 maxRegret: 2.30
 
-meanLoglikelihoodRW: 8.10
-stdLoglikelihoodRW: 1.40
-maxLoglikelihoodRW: 9.40
+meanLoglikelihoodRW: 8.20
+stdLoglikelihoodRW: 1.50
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			160
 MSEmean: 0.000014
@@ -203,64 +203,64 @@ MSEstd: 0.000037
 MSEmax: 0.000126
 
 meanRegret: 0.50
-stdRegret: 0.60
+stdRegret: 0.70
 maxRegret: 2.40
 
-meanLoglikelihoodRW: 8.10
-stdLoglikelihoodRW: 1.40
-maxLoglikelihoodRW: 9.30
+meanLoglikelihoodRW: 8.20
+stdLoglikelihoodRW: 1.50
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			170
 MSEmean: 0.000014
 MSEstd: 0.000037
 MSEmax: 0.000126
 
-meanRegret: 0.60
+meanRegret: 0.50
 stdRegret: 0.70
 maxRegret: 2.50
 
-meanLoglikelihoodRW: 8.00
+meanLoglikelihoodRW: 8.10
 stdLoglikelihoodRW: 1.50
-maxLoglikelihoodRW: 9.30
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			180
 MSEmean: 0.000014
 MSEstd: 0.000037
 MSEmax: 0.000126
 
-meanRegret: 0.60
-stdRegret: 0.70
+meanRegret: 0.50
+stdRegret: 0.80
 maxRegret: 2.70
 
-meanLoglikelihoodRW: 8.00
-stdLoglikelihoodRW: 1.50
-maxLoglikelihoodRW: 9.30
+meanLoglikelihoodRW: 8.10
+stdLoglikelihoodRW: 1.60
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			190
 MSEmean: 0.000014
 MSEstd: 0.000038
 MSEmax: 0.000127
 
-meanRegret: 0.60
+meanRegret: 0.50
 stdRegret: 0.80
 maxRegret: 2.90
 
-meanLoglikelihoodRW: 8.00
+meanLoglikelihoodRW: 8.10
 stdLoglikelihoodRW: 1.60
-maxLoglikelihoodRW: 9.30
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			200
 MSEmean: 0.000014
 MSEstd: 0.000038
 MSEmax: 0.000127
 
-meanRegret: 0.60
+meanRegret: 0.50
 stdRegret: 0.80
 maxRegret: 2.90
 
-meanLoglikelihoodRW: 8.00
+meanLoglikelihoodRW: 8.10
 stdLoglikelihoodRW: 1.60
-maxLoglikelihoodRW: 9.30
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			210
 MSEmean: 0.000014
@@ -271,9 +271,9 @@ meanRegret: 0.60
 stdRegret: 0.80
 maxRegret: 3.00
 
-meanLoglikelihoodRW: 8.00
-stdLoglikelihoodRW: 1.60
-maxLoglikelihoodRW: 9.30
+meanLoglikelihoodRW: 8.10
+stdLoglikelihoodRW: 1.70
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			220
 MSEmean: 0.000014
@@ -281,51 +281,51 @@ MSEstd: 0.000038
 MSEmax: 0.000127
 
 meanRegret: 0.60
-stdRegret: 0.80
+stdRegret: 0.90
 maxRegret: 3.20
 
 meanLoglikelihoodRW: 8.00
-stdLoglikelihoodRW: 1.60
-maxLoglikelihoodRW: 9.20
+stdLoglikelihoodRW: 1.70
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			230
 MSEmean: 0.000014
 MSEstd: 0.000038
 MSEmax: 0.000127
 
-meanRegret: 0.70
+meanRegret: 0.60
 stdRegret: 0.90
 maxRegret: 3.30
 
-meanLoglikelihoodRW: 7.90
+meanLoglikelihoodRW: 8.00
 stdLoglikelihoodRW: 1.70
-maxLoglikelihoodRW: 9.20
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			240
 MSEmean: 0.000014
 MSEstd: 0.000038
 MSEmax: 0.000128
 
-meanRegret: 0.70
+meanRegret: 0.60
 stdRegret: 0.90
 maxRegret: 3.50
 
-meanLoglikelihoodRW: 7.90
-stdLoglikelihoodRW: 1.70
-maxLoglikelihoodRW: 9.20
+meanLoglikelihoodRW: 8.00
+stdLoglikelihoodRW: 1.80
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			250
 MSEmean: 0.000014
 MSEstd: 0.000038
 MSEmax: 0.000128
 
-meanRegret: 0.70
-stdRegret: 0.90
+meanRegret: 0.60
+stdRegret: 1.00
 maxRegret: 3.60
 
-meanLoglikelihoodRW: 7.90
+meanLoglikelihoodRW: 8.00
 stdLoglikelihoodRW: 1.80
-maxLoglikelihoodRW: 9.20
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			260
 MSEmean: 0.000014
@@ -336,9 +336,9 @@ meanRegret: 0.70
 stdRegret: 1.00
 maxRegret: 3.80
 
-meanLoglikelihoodRW: 7.90
-stdLoglikelihoodRW: 1.80
-maxLoglikelihoodRW: 9.20
+meanLoglikelihoodRW: 8.00
+stdLoglikelihoodRW: 1.90
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			270
 MSEmean: 0.000014
@@ -346,556 +346,556 @@ MSEstd: 0.000038
 MSEmax: 0.000128
 
 meanRegret: 0.70
-stdRegret: 1.00
+stdRegret: 1.10
 maxRegret: 3.90
 
 meanLoglikelihoodRW: 7.90
-stdLoglikelihoodRW: 1.80
-maxLoglikelihoodRW: 9.20
+stdLoglikelihoodRW: 1.90
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			280
 MSEmean: 0.000014
 MSEstd: 0.000038
 MSEmax: 0.000128
 
-meanRegret: 0.80
-stdRegret: 1.00
+meanRegret: 0.70
+stdRegret: 1.10
 maxRegret: 4.00
 
-meanLoglikelihoodRW: 7.80
-stdLoglikelihoodRW: 1.80
-maxLoglikelihoodRW: 9.20
+meanLoglikelihoodRW: 7.90
+stdLoglikelihoodRW: 1.90
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			290
 MSEmean: 0.000014
 MSEstd: 0.000038
 MSEmax: 0.000128
 
-meanRegret: 0.80
-stdRegret: 1.00
+meanRegret: 0.70
+stdRegret: 1.10
 maxRegret: 4.00
 
-meanLoglikelihoodRW: 7.80
-stdLoglikelihoodRW: 1.80
-maxLoglikelihoodRW: 9.20
+meanLoglikelihoodRW: 7.90
+stdLoglikelihoodRW: 1.90
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			300
 MSEmean: 0.000014
 MSEstd: 0.000038
 MSEmax: 0.000128
 
-meanRegret: 0.80
-stdRegret: 1.00
+meanRegret: 0.70
+stdRegret: 1.10
 maxRegret: 4.00
 
-meanLoglikelihoodRW: 7.80
-stdLoglikelihoodRW: 1.80
-maxLoglikelihoodRW: 9.20
+meanLoglikelihoodRW: 7.90
+stdLoglikelihoodRW: 1.90
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			310
 MSEmean: 0.000014
 MSEstd: 0.000038
 MSEmax: 0.000128
 
-meanRegret: 0.80
-stdRegret: 1.00
+meanRegret: 0.70
+stdRegret: 1.10
 maxRegret: 4.00
 
-meanLoglikelihoodRW: 7.80
-stdLoglikelihoodRW: 1.80
-maxLoglikelihoodRW: 9.10
+meanLoglikelihoodRW: 7.90
+stdLoglikelihoodRW: 1.90
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			320
 MSEmean: 0.000014
 MSEstd: 0.000038
 MSEmax: 0.000128
 
-meanRegret: 0.80
-stdRegret: 1.00
+meanRegret: 0.70
+stdRegret: 1.10
 maxRegret: 4.00
 
-meanLoglikelihoodRW: 7.80
-stdLoglikelihoodRW: 1.80
-maxLoglikelihoodRW: 9.10
+meanLoglikelihoodRW: 7.90
+stdLoglikelihoodRW: 1.90
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			330
 MSEmean: 0.000014
 MSEstd: 0.000038
 MSEmax: 0.000128
 
-meanRegret: 0.80
-stdRegret: 1.00
+meanRegret: 0.70
+stdRegret: 1.10
 maxRegret: 4.00
 
-meanLoglikelihoodRW: 7.80
-stdLoglikelihoodRW: 1.80
-maxLoglikelihoodRW: 9.10
+meanLoglikelihoodRW: 7.90
+stdLoglikelihoodRW: 1.90
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			340
 MSEmean: 0.000014
 MSEstd: 0.000038
 MSEmax: 0.000128
 
-meanRegret: 0.80
-stdRegret: 1.00
+meanRegret: 0.70
+stdRegret: 1.10
 maxRegret: 4.00
 
-meanLoglikelihoodRW: 7.80
-stdLoglikelihoodRW: 1.80
-maxLoglikelihoodRW: 9.00
+meanLoglikelihoodRW: 7.90
+stdLoglikelihoodRW: 1.90
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			350
 MSEmean: 0.000014
 MSEstd: 0.000038
 MSEmax: 0.000128
 
-meanRegret: 0.80
-stdRegret: 1.00
+meanRegret: 0.70
+stdRegret: 1.10
 maxRegret: 4.00
 
-meanLoglikelihoodRW: 7.80
-stdLoglikelihoodRW: 1.80
-maxLoglikelihoodRW: 9.00
+meanLoglikelihoodRW: 7.90
+stdLoglikelihoodRW: 1.90
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			360
 MSEmean: 0.000014
 MSEstd: 0.000038
 MSEmax: 0.000128
 
-meanRegret: 0.80
-stdRegret: 1.00
+meanRegret: 0.70
+stdRegret: 1.10
 maxRegret: 4.00
 
-meanLoglikelihoodRW: 7.80
-stdLoglikelihoodRW: 1.80
-maxLoglikelihoodRW: 9.00
+meanLoglikelihoodRW: 7.90
+stdLoglikelihoodRW: 1.90
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			370
 MSEmean: 0.000014
 MSEstd: 0.000038
 MSEmax: 0.000128
 
-meanRegret: 0.80
-stdRegret: 1.00
+meanRegret: 0.70
+stdRegret: 1.10
 maxRegret: 4.00
 
-meanLoglikelihoodRW: 7.80
-stdLoglikelihoodRW: 1.80
-maxLoglikelihoodRW: 9.00
+meanLoglikelihoodRW: 7.90
+stdLoglikelihoodRW: 1.90
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			380
 MSEmean: 0.000014
 MSEstd: 0.000038
 MSEmax: 0.000128
 
-meanRegret: 0.80
-stdRegret: 1.00
+meanRegret: 0.70
+stdRegret: 1.10
 maxRegret: 4.00
 
-meanLoglikelihoodRW: 7.80
-stdLoglikelihoodRW: 1.80
-maxLoglikelihoodRW: 9.00
+meanLoglikelihoodRW: 7.90
+stdLoglikelihoodRW: 1.90
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			390
 MSEmean: 0.000014
 MSEstd: 0.000038
 MSEmax: 0.000128
 
-meanRegret: 0.80
-stdRegret: 1.00
+meanRegret: 0.70
+stdRegret: 1.10
 maxRegret: 4.00
 
-meanLoglikelihoodRW: 7.80
-stdLoglikelihoodRW: 1.80
-maxLoglikelihoodRW: 9.00
+meanLoglikelihoodRW: 7.90
+stdLoglikelihoodRW: 1.90
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			400
 MSEmean: 0.000014
 MSEstd: 0.000038
 MSEmax: 0.000128
 
-meanRegret: 0.80
-stdRegret: 1.00
+meanRegret: 0.70
+stdRegret: 1.10
 maxRegret: 4.00
 
-meanLoglikelihoodRW: 7.80
-stdLoglikelihoodRW: 1.80
-maxLoglikelihoodRW: 9.00
+meanLoglikelihoodRW: 7.90
+stdLoglikelihoodRW: 1.90
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			410
 MSEmean: 0.000014
 MSEstd: 0.000038
 MSEmax: 0.000128
 
-meanRegret: 0.80
-stdRegret: 1.00
+meanRegret: 0.70
+stdRegret: 1.10
 maxRegret: 4.00
 
-meanLoglikelihoodRW: 7.80
-stdLoglikelihoodRW: 1.80
-maxLoglikelihoodRW: 9.00
+meanLoglikelihoodRW: 7.90
+stdLoglikelihoodRW: 1.90
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			420
 MSEmean: 0.000014
 MSEstd: 0.000038
 MSEmax: 0.000128
 
-meanRegret: 0.80
-stdRegret: 1.00
+meanRegret: 0.70
+stdRegret: 1.10
 maxRegret: 4.00
 
-meanLoglikelihoodRW: 7.80
-stdLoglikelihoodRW: 1.80
-maxLoglikelihoodRW: 9.00
+meanLoglikelihoodRW: 7.90
+stdLoglikelihoodRW: 1.90
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			430
 MSEmean: 0.000014
 MSEstd: 0.000038
 MSEmax: 0.000128
 
-meanRegret: 0.80
-stdRegret: 1.00
+meanRegret: 0.70
+stdRegret: 1.10
 maxRegret: 4.00
 
-meanLoglikelihoodRW: 7.80
-stdLoglikelihoodRW: 1.80
-maxLoglikelihoodRW: 9.00
+meanLoglikelihoodRW: 7.90
+stdLoglikelihoodRW: 1.90
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			440
 MSEmean: 0.000014
 MSEstd: 0.000038
 MSEmax: 0.000128
 
-meanRegret: 0.80
-stdRegret: 1.00
+meanRegret: 0.70
+stdRegret: 1.10
 maxRegret: 4.00
 
-meanLoglikelihoodRW: 7.80
-stdLoglikelihoodRW: 1.80
-maxLoglikelihoodRW: 9.00
+meanLoglikelihoodRW: 7.90
+stdLoglikelihoodRW: 1.90
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			450
 MSEmean: 0.000014
 MSEstd: 0.000038
 MSEmax: 0.000128
 
-meanRegret: 0.80
-stdRegret: 1.00
+meanRegret: 0.70
+stdRegret: 1.10
 maxRegret: 4.00
 
-meanLoglikelihoodRW: 7.80
-stdLoglikelihoodRW: 1.80
-maxLoglikelihoodRW: 9.00
+meanLoglikelihoodRW: 7.90
+stdLoglikelihoodRW: 1.90
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			460
 MSEmean: 0.000014
 MSEstd: 0.000038
 MSEmax: 0.000128
 
-meanRegret: 0.80
-stdRegret: 1.00
+meanRegret: 0.70
+stdRegret: 1.10
 maxRegret: 4.00
 
-meanLoglikelihoodRW: 7.80
-stdLoglikelihoodRW: 1.80
-maxLoglikelihoodRW: 9.00
+meanLoglikelihoodRW: 7.90
+stdLoglikelihoodRW: 1.90
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			470
 MSEmean: 0.000014
 MSEstd: 0.000038
 MSEmax: 0.000128
 
-meanRegret: 0.80
-stdRegret: 1.00
+meanRegret: 0.70
+stdRegret: 1.10
 maxRegret: 4.00
 
-meanLoglikelihoodRW: 7.80
-stdLoglikelihoodRW: 1.80
-maxLoglikelihoodRW: 9.00
+meanLoglikelihoodRW: 7.90
+stdLoglikelihoodRW: 1.90
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			480
 MSEmean: 0.000014
 MSEstd: 0.000038
 MSEmax: 0.000128
 
-meanRegret: 0.80
-stdRegret: 1.00
+meanRegret: 0.70
+stdRegret: 1.10
 maxRegret: 4.00
 
-meanLoglikelihoodRW: 7.80
-stdLoglikelihoodRW: 1.80
-maxLoglikelihoodRW: 9.00
+meanLoglikelihoodRW: 7.90
+stdLoglikelihoodRW: 1.90
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			490
 MSEmean: 0.000014
 MSEstd: 0.000038
 MSEmax: 0.000128
 
-meanRegret: 0.80
-stdRegret: 1.00
+meanRegret: 0.70
+stdRegret: 1.10
 maxRegret: 4.00
 
-meanLoglikelihoodRW: 7.80
-stdLoglikelihoodRW: 1.80
-maxLoglikelihoodRW: 9.00
+meanLoglikelihoodRW: 7.90
+stdLoglikelihoodRW: 1.90
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			500
 MSEmean: 0.000014
 MSEstd: 0.000038
 MSEmax: 0.000128
 
-meanRegret: 0.80
-stdRegret: 1.00
+meanRegret: 0.70
+stdRegret: 1.10
 maxRegret: 4.00
 
-meanLoglikelihoodRW: 7.80
-stdLoglikelihoodRW: 1.80
-maxLoglikelihoodRW: 9.00
+meanLoglikelihoodRW: 7.90
+stdLoglikelihoodRW: 1.90
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			510
 MSEmean: 0.000014
 MSEstd: 0.000038
 MSEmax: 0.000128
 
-meanRegret: 0.80
-stdRegret: 1.00
+meanRegret: 0.70
+stdRegret: 1.10
 maxRegret: 4.00
 
-meanLoglikelihoodRW: 7.80
-stdLoglikelihoodRW: 1.80
-maxLoglikelihoodRW: 9.00
+meanLoglikelihoodRW: 7.90
+stdLoglikelihoodRW: 1.90
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			520
 MSEmean: 0.000014
 MSEstd: 0.000038
 MSEmax: 0.000128
 
-meanRegret: 0.80
-stdRegret: 1.00
+meanRegret: 0.70
+stdRegret: 1.10
 maxRegret: 4.00
 
-meanLoglikelihoodRW: 7.80
-stdLoglikelihoodRW: 1.80
-maxLoglikelihoodRW: 9.00
+meanLoglikelihoodRW: 7.90
+stdLoglikelihoodRW: 1.90
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			530
 MSEmean: 0.000014
 MSEstd: 0.000038
 MSEmax: 0.000128
 
-meanRegret: 0.80
-stdRegret: 1.00
+meanRegret: 0.70
+stdRegret: 1.10
 maxRegret: 4.00
 
-meanLoglikelihoodRW: 7.80
-stdLoglikelihoodRW: 1.80
-maxLoglikelihoodRW: 9.00
+meanLoglikelihoodRW: 7.90
+stdLoglikelihoodRW: 1.90
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			540
 MSEmean: 0.000014
 MSEstd: 0.000038
 MSEmax: 0.000128
 
-meanRegret: 0.80
-stdRegret: 1.00
+meanRegret: 0.70
+stdRegret: 1.10
 maxRegret: 4.00
 
-meanLoglikelihoodRW: 7.80
-stdLoglikelihoodRW: 1.80
-maxLoglikelihoodRW: 9.00
+meanLoglikelihoodRW: 7.90
+stdLoglikelihoodRW: 1.90
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			550
 MSEmean: 0.000014
 MSEstd: 0.000038
 MSEmax: 0.000128
 
-meanRegret: 0.80
-stdRegret: 1.00
+meanRegret: 0.70
+stdRegret: 1.10
 maxRegret: 4.00
 
-meanLoglikelihoodRW: 7.80
-stdLoglikelihoodRW: 1.80
-maxLoglikelihoodRW: 9.00
+meanLoglikelihoodRW: 7.90
+stdLoglikelihoodRW: 1.90
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			560
 MSEmean: 0.000014
 MSEstd: 0.000038
 MSEmax: 0.000128
 
-meanRegret: 0.80
-stdRegret: 1.00
+meanRegret: 0.70
+stdRegret: 1.10
 maxRegret: 4.00
 
-meanLoglikelihoodRW: 7.80
-stdLoglikelihoodRW: 1.80
-maxLoglikelihoodRW: 9.00
+meanLoglikelihoodRW: 7.90
+stdLoglikelihoodRW: 1.90
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			570
 MSEmean: 0.000014
 MSEstd: 0.000038
 MSEmax: 0.000128
 
-meanRegret: 0.80
-stdRegret: 1.00
+meanRegret: 0.70
+stdRegret: 1.10
 maxRegret: 4.00
 
-meanLoglikelihoodRW: 7.80
-stdLoglikelihoodRW: 1.80
-maxLoglikelihoodRW: 9.00
+meanLoglikelihoodRW: 7.90
+stdLoglikelihoodRW: 1.90
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			580
 MSEmean: 0.000014
 MSEstd: 0.000038
 MSEmax: 0.000128
 
-meanRegret: 0.80
-stdRegret: 1.00
+meanRegret: 0.70
+stdRegret: 1.10
 maxRegret: 4.00
 
-meanLoglikelihoodRW: 7.80
-stdLoglikelihoodRW: 1.80
-maxLoglikelihoodRW: 9.00
+meanLoglikelihoodRW: 7.90
+stdLoglikelihoodRW: 1.90
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			590
 MSEmean: 0.000014
 MSEstd: 0.000038
 MSEmax: 0.000128
 
-meanRegret: 0.80
-stdRegret: 1.00
+meanRegret: 0.70
+stdRegret: 1.10
 maxRegret: 4.00
 
-meanLoglikelihoodRW: 7.80
-stdLoglikelihoodRW: 1.80
-maxLoglikelihoodRW: 9.00
+meanLoglikelihoodRW: 7.90
+stdLoglikelihoodRW: 1.90
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			600
 MSEmean: 0.000014
 MSEstd: 0.000038
 MSEmax: 0.000128
 
-meanRegret: 0.80
-stdRegret: 1.00
+meanRegret: 0.70
+stdRegret: 1.10
 maxRegret: 4.00
 
-meanLoglikelihoodRW: 7.80
-stdLoglikelihoodRW: 1.80
-maxLoglikelihoodRW: 9.00
+meanLoglikelihoodRW: 7.90
+stdLoglikelihoodRW: 1.90
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			610
 MSEmean: 0.000014
 MSEstd: 0.000038
 MSEmax: 0.000128
 
-meanRegret: 0.80
-stdRegret: 1.00
+meanRegret: 0.70
+stdRegret: 1.10
 maxRegret: 4.00
 
-meanLoglikelihoodRW: 7.80
-stdLoglikelihoodRW: 1.80
-maxLoglikelihoodRW: 9.00
+meanLoglikelihoodRW: 7.90
+stdLoglikelihoodRW: 1.90
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			620
 MSEmean: 0.000014
 MSEstd: 0.000038
 MSEmax: 0.000128
 
-meanRegret: 0.80
-stdRegret: 1.00
+meanRegret: 0.70
+stdRegret: 1.10
 maxRegret: 4.00
 
-meanLoglikelihoodRW: 7.80
-stdLoglikelihoodRW: 1.80
-maxLoglikelihoodRW: 9.00
+meanLoglikelihoodRW: 7.90
+stdLoglikelihoodRW: 1.90
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			630
 MSEmean: 0.000014
 MSEstd: 0.000038
 MSEmax: 0.000128
 
-meanRegret: 0.80
-stdRegret: 1.00
+meanRegret: 0.70
+stdRegret: 1.10
 maxRegret: 4.00
 
-meanLoglikelihoodRW: 7.80
-stdLoglikelihoodRW: 1.80
-maxLoglikelihoodRW: 9.00
+meanLoglikelihoodRW: 7.90
+stdLoglikelihoodRW: 1.90
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			640
 MSEmean: 0.000014
 MSEstd: 0.000038
 MSEmax: 0.000128
 
-meanRegret: 0.80
-stdRegret: 1.00
+meanRegret: 0.70
+stdRegret: 1.10
 maxRegret: 4.00
 
-meanLoglikelihoodRW: 7.80
-stdLoglikelihoodRW: 1.80
-maxLoglikelihoodRW: 9.00
+meanLoglikelihoodRW: 7.90
+stdLoglikelihoodRW: 1.90
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			650
 MSEmean: 0.000014
 MSEstd: 0.000038
 MSEmax: 0.000128
 
-meanRegret: 0.80
-stdRegret: 1.00
+meanRegret: 0.70
+stdRegret: 1.10
 maxRegret: 4.00
 
-meanLoglikelihoodRW: 7.80
-stdLoglikelihoodRW: 1.80
-maxLoglikelihoodRW: 9.00
+meanLoglikelihoodRW: 7.90
+stdLoglikelihoodRW: 1.90
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			660
 MSEmean: 0.000014
 MSEstd: 0.000038
 MSEmax: 0.000128
 
-meanRegret: 0.80
-stdRegret: 1.00
+meanRegret: 0.70
+stdRegret: 1.10
 maxRegret: 4.00
 
-meanLoglikelihoodRW: 7.80
-stdLoglikelihoodRW: 1.80
-maxLoglikelihoodRW: 9.00
+meanLoglikelihoodRW: 7.90
+stdLoglikelihoodRW: 1.90
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			670
 MSEmean: 0.000014
 MSEstd: 0.000038
 MSEmax: 0.000128
 
-meanRegret: 0.80
-stdRegret: 1.00
+meanRegret: 0.70
+stdRegret: 1.10
 maxRegret: 4.00
 
-meanLoglikelihoodRW: 7.80
-stdLoglikelihoodRW: 1.80
-maxLoglikelihoodRW: 9.00
+meanLoglikelihoodRW: 7.90
+stdLoglikelihoodRW: 1.90
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			680
 MSEmean: 0.000014
 MSEstd: 0.000038
 MSEmax: 0.000128
 
-meanRegret: 0.80
-stdRegret: 1.00
+meanRegret: 0.70
+stdRegret: 1.10
 maxRegret: 4.00
 
-meanLoglikelihoodRW: 7.80
-stdLoglikelihoodRW: 1.80
-maxLoglikelihoodRW: 9.00
+meanLoglikelihoodRW: 7.90
+stdLoglikelihoodRW: 1.90
+maxLoglikelihoodRW: 9.80
 
 RWMEMORY:			690
 MSEmean: 0.000014
 MSEstd: 0.000038
 MSEmax: 0.000128
 
-meanRegret: 0.80
-stdRegret: 1.00
+meanRegret: 0.70
+stdRegret: 1.10
 maxRegret: 4.00
 
-meanLoglikelihoodRW: 7.80
-stdLoglikelihoodRW: 1.80
-maxLoglikelihoodRW: 9.00
+meanLoglikelihoodRW: 7.90
+stdLoglikelihoodRW: 1.90
+maxLoglikelihoodRW: 9.80
 
