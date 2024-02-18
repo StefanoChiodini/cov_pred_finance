@@ -13,7 +13,7 @@ library(quantmod)
 
 
 # Load the full dataset
-fullTimeSeriesPrices <- read.csv('experiments/data/stocksPrices.csv', header = TRUE, stringsAsFactors = FALSE)
+fullTimeSeriesPrices <- read.csv('experiments/data/sixStocksPortfolios.csv', header = TRUE, stringsAsFactors = FALSE)
 
 # Calculate indices for each dataset segment
 trainingEndIndex <- 2291
@@ -36,26 +36,21 @@ cat("Testing data size:", nrow(testingData), "\n")
 # now i unify training and validation data
 trainingAndValidationData <- fullTimeSeriesPrices[1:(trainingSize + validationSize), ]
 
-# Extract data for each stock: APPLE
-
-aaplSeriesTrainingAndValidation <- trainingAndValidationData$AAPL
-
-# Calculate log-returns for GARCH analysis
-aaplLogReturnsTrainingAndValidation <- diff(log(aaplSeriesTrainingAndValidation))
+# Number of assets
+numAssets <- ncol(trainingAndValidationData) - 1  # the first column is 'Date'
 
 
-# Extract data for each stock: IBM
-ibmSeriesTrainingAndValidation <- trainingAndValidationData$IBM
+# Calculate log-returns for GARCH analysis for each asset
+logReturnsTrainingAndValidation <- data.frame(Date = trainingAndValidationData$Date[-1])  # Initialize with Date if needed
 
-# Calculate log-returns for GARCH analysis
-ibmLogReturnsTrainingAndValidation <- diff(log(ibmSeriesTrainingAndValidation))
+for (i in 2:(numAssets + 1)) {  # Assuming the first column is 'Date'
+  assetName <- colnames(trainingAndValidationData)[i]
+  seriesTrainingAndValidation <- trainingAndValidationData[[assetName]]
+  logReturnsTrainingAndValidation[[assetName]] <- diff(log(seriesTrainingAndValidation))
+}
 
-
-# Extract data for each stock: MCD
-mcdSeriesTrainingAndValidation <- trainingAndValidationData$MCD
-
-# Calculate log-returns for GARCH analysis
-mcdLogReturnsTrainingAndValidation <- diff(log(mcdSeriesTrainingAndValidation))
+# Remove 'Date' column if it was not supposed to be part of log returns
+logReturnsTrainingAndValidation$Date <- NULL
 
 
 #
@@ -69,17 +64,15 @@ univariateGarchSpec <- ugarchspec(
     distribution.model = 'norm',
     ) 
 
-# dcc specification - GARCH(1,1) for conditional correlations
-multivariateGarchSpec = dccspec(uspec = multispec(replicate(3, univariateGarchSpec)), 
-                           dccOrder = c(1,1), 
-                           distribution = "mvnorm",
-                           )
+# DCC specification - GARCH(1,1) for conditional correlations
+multivariateGarchSpec <- dccspec(uspec = multispec(replicate(numAssets, univariateGarchSpec)), 
+                                 dccOrder = c(1,1), 
+                                 distribution = "mvnorm")
 
 # dcc estimation
 modelFit <- dccfit(multivariateGarchSpec, 
-            data = data.frame(aaplLogReturnsTrainingAndValidation, ibmLogReturnsTrainingAndValidation, mcdLogReturnsTrainingAndValidation),
-            out.sample = validationSize, # number of observations to hold out for forecasting the out of sample parameter must be an integer
-            )
+                   data = as.data.frame(logReturnsTrainingAndValidation),
+                   out.sample = validationSize)
 
 # summary of the model
 summary(modelFit)

@@ -13,7 +13,7 @@ library(quantmod)
 
 
 # Load the full dataset
-fullTimeSeriesPrices <- read.csv('experiments/data/stocksPrices.csv', header = TRUE, stringsAsFactors = FALSE)
+fullTimeSeriesPrices <- read.csv('experiments/data/sixStocksPortfolios.csv', header = TRUE, stringsAsFactors = FALSE)
 
 # Calculate indices for each dataset segment
 trainingEndIndex <- 2291
@@ -33,36 +33,20 @@ cat("Training data size:", trainingSize, "\n")
 cat("Validation data size:", validationSize, "\n")
 cat("Testing data size:", testingSize, "\n")
 
-# Extract data for each stock: APPLE
-aaplWholeSeries <- fullTimeSeriesPrices$AAPL
+# Number of assets
+numAssets <- ncol(fullTimeSeriesPrices) - 1  # the first column is 'Date'
 
-# Calculate log-returns for GARCH analysis
-aaplLogReturnsWholeSeries <- diff(log(aaplWholeSeries))
+# Calculate log-returns for GARCH analysis for each asset
+logReturnsWholeSeries <- data.frame(Date = fullTimeSeriesPrices$Date[-1])  # Initialize with Date if needed
 
+for (i in 2:(numAssets + 1)) {  # Assuming the first column is 'Date'
+  assetName <- colnames(fullTimeSeriesPrices)[i]
+  seriesWholeSeries <- fullTimeSeriesPrices[[assetName]]
+  logReturnsWholeSeries[[assetName]] <- diff(log(seriesWholeSeries))
+}
 
-# Extract data for each stock: IBM
-ibmSeriesWholeSeries <- fullTimeSeriesPrices$IBM
-
-# Calculate log-returns for GARCH analysis
-ibmLogReturnsWholeSeries <- diff(log(ibmSeriesWholeSeries))
-
-
-# Extract data for each stock: MCD
-mcdSeriesWholeSeries <- fullTimeSeriesPrices$MCD
-
-# Calculate log-returns for GARCH analysis
-mcdLogReturnsWholeSeries <- diff(log(mcdSeriesWholeSeries))
-
-# here i check if these 3 time series are stationary
-# Perform Augmented Dickey-Fuller test for each time series
-adf_aapl <- adf.test(aaplLogReturnsWholeSeries, alternative = "stationary")
-adf_ibm <- adf.test(ibmLogReturnsWholeSeries, alternative = "stationary")
-adf_mcd <- adf.test(mcdLogReturnsWholeSeries, alternative = "stationary")
-
-# Print the results
-print(adf_aapl)
-print(adf_ibm)
-print(adf_mcd)
+# Remove 'Date' column if it was not supposed to be part of log returns
+logReturnsWholeSeries$Date <- NULL
 
 
 #
@@ -84,7 +68,7 @@ multivariateGarchSpec = dccspec(uspec = multispec(replicate(3, univariateGarchSp
 
 # dcc estimation
 modelFit <- dccfit(multivariateGarchSpec, 
-            data = data.frame(aaplLogReturnsWholeSeries, ibmLogReturnsWholeSeries, mcdLogReturnsWholeSeries), # here i use the whole series because is the only way to calculate the covariance matrix for each day of the test set; i cannot skip the validation set otherwise i use te training prices of year 2018 (that are low) to estimate covariance matrix in year 2020 (it is like there is just a single day that inglobe 2 trafding years)
+            data = as.data.frame(logReturnsWholeSeries), # here i use the whole series because is the only way to calculate the covariance matrix for each day of the test set; i cannot skip the validation set otherwise i use te training prices of year 2018 (that are low) to estimate covariance matrix in year 2020 (it is like there is just a single day that inglobe 2 trafding years)
             out.sample = validationSize + testingSize, # number of observations to hold out for forecasting the out of sample parameter must be an integer
             )
 
