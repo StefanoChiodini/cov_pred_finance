@@ -3,7 +3,7 @@
 # 2. to estimate the correlation matrix
 # install.packages(c('tseries', 'rugarch', 'rmgarch'))
 
-print("TRAIN AND VALIDATION RUN")
+print("TRAIN AND TEST RUN")
 
 library(tseries)
 library(PerformanceAnalytics)
@@ -13,7 +13,7 @@ library(quantmod)
 
 
 # Load the full dataset
-fullTimeSeriesPrices <- read.csv('experiments/data/stocksPrices.csv', header = TRUE, stringsAsFactors = FALSE)
+fullTimeSeriesPrices <- read.csv('experiments/data/threeStocksPortfolios.csv', header = TRUE, stringsAsFactors = FALSE)
 
 # Calculate indices for each dataset segment
 trainingEndIndex <- 2291
@@ -29,34 +29,24 @@ validationSize <- nrow(validationData)
 testingSize <- nrow(testingData)
 
 # Verify the sizes of each dataset segment
-cat("Training data size:", nrow(trainingData), "\n")
-cat("Validation data size:", nrow(validationData), "\n")
-cat("Testing data size:", nrow(testingData), "\n")
+cat("Training data size:", trainingSize, "\n")
+cat("Validation data size:", validationSize, "\n")
+cat("Testing data size:", testingSize, "\n")
 
-# now i unify training and validation data
-trainingAndValidationData <- fullTimeSeriesPrices[1:(trainingSize + validationSize), ]
+# Number of assets
+numAssets <- ncol(fullTimeSeriesPrices) - 1  # the first column is 'Date'
 
-# Extract data for each stock: APPLE
+# Calculate log-returns for GARCH analysis for each asset
+logReturnsWholeSeries <- data.frame(Date = fullTimeSeriesPrices$Date[-1])  # Initialize with Date if needed
 
-aaplSeriesTrainingAndValidation <- trainingAndValidationData$AAPL
+for (i in 2:(numAssets + 1)) {  # Assuming the first column is 'Date'
+  assetName <- colnames(fullTimeSeriesPrices)[i]
+  seriesWholeSeries <- fullTimeSeriesPrices[[assetName]]
+  logReturnsWholeSeries[[assetName]] <- diff(log(seriesWholeSeries))
+}
 
-# Calculate log-returns for GARCH analysis
-aaplLogReturnsTrainingAndValidation <- diff(log(aaplSeriesTrainingAndValidation))
-
-
-# Extract data for each stock: IBM
-ibmSeriesTrainingAndValidation <- trainingAndValidationData$IBM
-
-# Calculate log-returns for GARCH analysis
-ibmLogReturnsTrainingAndValidation <- diff(log(ibmSeriesTrainingAndValidation))
-
-
-# Extract data for each stock: MCD
-mcdSeriesTrainingAndValidation <- trainingAndValidationData$MCD
-
-# Calculate log-returns for GARCH analysis
-mcdLogReturnsTrainingAndValidation <- diff(log(mcdSeriesTrainingAndValidation))
-
+# Remove 'Date' column if it was not supposed to be part of log returns
+logReturnsWholeSeries$Date <- NULL
 
 #
 # DCC estimation
@@ -64,21 +54,21 @@ mcdLogReturnsTrainingAndValidation <- diff(log(mcdSeriesTrainingAndValidation))
 
 # univariate normal GARCH(1,1) for each series
 univariateGarchSpec <- ugarchspec(
-    mean.model = list(armaOrder = c(0,0)), 
-    variance.model = list(garchOrder = c(1,1), model = 'sGARCH'), # sGARCH: standard GARCH
+    mean.model = list(armaOrder = c(10,10)), 
+    variance.model = list(garchOrder = c(10,10), model = 'sGARCH'), # sGARCH: standard GARCH
     distribution.model = 'norm',
     ) 
 
 # dcc specification - GARCH(1,1) for conditional correlations
-multivariateGarchSpec = dccspec(uspec = multispec(replicate(3, univariateGarchSpec)), 
-                           dccOrder = c(1,1), 
+multivariateGarchSpec = dccspec(uspec = multispec(replicate(numAssets, univariateGarchSpec)), 
+                           dccOrder = c(10,10), 
                            distribution = "mvnorm",
                            )
 
 # dcc estimation
 modelFit <- dccfit(multivariateGarchSpec, 
-            data = data.frame(aaplLogReturnsTrainingAndValidation, ibmLogReturnsTrainingAndValidation, mcdLogReturnsTrainingAndValidation),
-            out.sample = validationSize, # number of observations to hold out for forecasting the out of sample parameter must be an integer
+            data = as.data.frame(logReturnsWholeSeries), # here i use the whole series because is the only way to calculate the covariance matrix for each day of the test set; i cannot skip the validation set otherwise i use te training prices of year 2018 (that are low) to estimate covariance matrix in year 2020 (it is like there is just a single day that inglobe 2 trafding years)
+            out.sample = validationSize + testingSize, # number of observations to hold out for forecasting the out of sample parameter must be an integer
             )
 
 # summary of the model
@@ -94,14 +84,14 @@ modelFit
 forecastCovariance <- dccforecast(
     modelFit, 
     n.ahead = 1, 
-    n.roll = validationSize - 1 # number of observations to hold out for forecasting the out of sample parameter must be an integer
+    n.roll = validationSize + testingSize - 1 # number of observations to hold out for forecasting the out of sample parameter must be an integer
     )
 
 # print the first covariance matrix
 covMatrices <- rcov(forecastCovariance)
 #covMatrices[[1]]
 #covMatrices[[2]]
-#covMatrices[[3]]
+covMatrices[[3]]
 
 # Assuming covMatrices is a list of 3x3 covariance matrices
 # Initialize a variable for the scaled matrices
@@ -109,22 +99,27 @@ scaledMatrices <- lapply(covMatrices, function(x) x * 10000)
 
 #scaledMatrices[[1]]
 #scaledMatrices[[2]]
-#scaledMatrices[[3]]
+scaledMatrices[[3]]
 
 # now i want to save every scaled matrices in a csv file
 # Initialize an empty data frame to hold all matrices
-allMatrices <- data.frame()
+# Determine the starting index for the testing set covariance matrices
+startIndexOfTestingMatrices <- length(covMatrices) - testingSize + 1
 
-for(i in 1:length(scaledMatrices)) {
+# Initialize an empty data frame to hold matrices for the testing set
+testingMatrices <- data.frame()
+
+# Loop only through the last 327 matrices
+for(i in startIndexOfTestingMatrices:length(scaledMatrices)) {
   # Convert the matrix to a data frame
   matrixDF <- as.data.frame(scaledMatrices[[i]])
   
   # Add an identifier for the matrix
-  matrixDF$MatrixID <- i
+  matrixDF$MatrixID <- i - startIndexOfTestingMatrices + 1
   
-  # Combine with the main data frame
-  allMatrices <- rbind(allMatrices, matrixDF)
+  # Combine with the main data frame for the testing set
+  testingMatrices <- rbind(testingMatrices, matrixDF)
 }
 
-# Write the combined data frame to a CSV file
-write.csv(allMatrices, "AllCovMatricesForValidation.csv", row.names = FALSE)
+# Write the combined data frame for the testing set to a CSV file
+write.csv(testingMatrices, "AllCovMatricesForTesting.csv", row.names = FALSE)

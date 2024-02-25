@@ -13,7 +13,7 @@ library(quantmod)
 
 
 # Load the full dataset
-fullTimeSeriesPrices <- read.csv('experiments/data/sixStocksPortfolios.csv', header = TRUE, stringsAsFactors = FALSE)
+fullTimeSeriesPrices <- read.csv('experiments/data/threeStocksPortfolios.csv', header = TRUE, stringsAsFactors = FALSE)
 
 # Calculate indices for each dataset segment
 trainingEndIndex <- 2291

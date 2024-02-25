@@ -13,7 +13,7 @@ library(quantmod)
 
 
 # Load the full dataset
-fullTimeSeriesPrices <- read.csv('experiments/data/sixStocksPortfolios.csv', header = TRUE, stringsAsFactors = FALSE)
+fullTimeSeriesPrices <- read.csv('experiments/data/threeStocksPortfolios.csv', header = TRUE, stringsAsFactors = FALSE)
 
 # Calculate indices for each dataset segment
 trainingEndIndex <- 2291
@@ -48,7 +48,6 @@ for (i in 2:(numAssets + 1)) {  # Assuming the first column is 'Date'
 # Remove 'Date' column if it was not supposed to be part of log returns
 logReturnsWholeSeries$Date <- NULL
 
-
 #
 # DCC estimation
 #
@@ -61,7 +60,7 @@ univariateGarchSpec <- ugarchspec(
     ) 
 
 # dcc specification - GARCH(1,1) for conditional correlations
-multivariateGarchSpec = dccspec(uspec = multispec(replicate(3, univariateGarchSpec)), 
+multivariateGarchSpec = dccspec(uspec = multispec(replicate(numAssets, univariateGarchSpec)), 
                            dccOrder = c(1,1), 
                            distribution = "mvnorm",
                            )
