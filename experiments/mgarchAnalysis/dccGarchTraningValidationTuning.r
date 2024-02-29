@@ -54,14 +54,14 @@ logReturnsWholeSeries$Date <- NULL
 
 # univariate normal GARCH(1,1) for each series
 univariateGarchSpec <- ugarchspec(
-    mean.model = list(armaOrder = c(10,10)), 
-    variance.model = list(garchOrder = c(10,10), model = 'sGARCH'), # sGARCH: standard GARCH
+    mean.model = list(armaOrder = c(0,0)), 
+    variance.model = list(garchOrder = c(1,1), model = 'sGARCH'), # sGARCH: standard GARCH
     distribution.model = 'norm',
     ) 
 
 # dcc specification - GARCH(1,1) for conditional correlations
 multivariateGarchSpec = dccspec(uspec = multispec(replicate(numAssets, univariateGarchSpec)), 
-                           dccOrder = c(10,10), 
+                           dccOrder = c(1,1), 
                            distribution = "mvnorm",
                            )
 
