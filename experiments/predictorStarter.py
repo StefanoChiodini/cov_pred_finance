@@ -156,19 +156,24 @@ ticker_to_permco = {v: k for k, v in permco_to_ticker.items()}
 
 # Replace ticker symbols with PERMCO codes if the ticker symbol is found in the reverse mapping
 columns = [ticker_to_permco.get(col, col) for col in stocksPercentageChangeReturn.columns]
-stocksPercentageChangeReturn.columns = columns
+stocksPercentageChangeReturn.columns = columns 
 
 # Repeat for uniformlyDistributedReturns
-columns_udr = [ticker_to_permco.get(col, col) for col in uniformlyDistributedReturns.columns]
-uniformlyDistributedReturns.columns = columns_udr
+
+uniformlyDistributedReturns.columns = columns
+
+# repeat for validation and test dataset
+trainingDataWithPercentageChange.columns = columns
+validationDataWithPercentageChange.columns = columns
+testDataWithPercentageChange.columns = columns
 
 # Plot the returns of the stocks with highlights and annotations
 plt.figure(figsize=(14, 7))
 plt.plot(stocksPrices)
 plt.legend(["AAPL", "IBM", "MCD"])
 plt.title("Returns of the stocks")
-plt.xlabel("Time")
-plt.ylabel("Returns")
+plt.xlabel("Time(days)")
+plt.ylabel("Returns(dollars)")
 
 # Adding vertical lines for specific events
 plt.axvline(pd.Timestamp('2020-02-24'), color='gray', linestyle='--', lw=2)  # COVID start
@@ -187,8 +192,8 @@ plt.figure(figsize=(14, 7))
 plt.plot(stocksPercentageChangeReturn)
 plt.legend(["AAPL", "IBM", "MCD"])
 plt.title("Percentage change of the stocks")
-plt.xlabel("Time")
-plt.ylabel("Percentage change")
+plt.xlabel("Time(days)")
+plt.ylabel("daily returns(%)")
 
 # Adding vertical lines for specific events
 plt.axvline(pd.Timestamp('2020-02-24'), color='gray', linestyle='--', lw=2)  # COVID start

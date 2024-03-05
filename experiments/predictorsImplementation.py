@@ -7,6 +7,7 @@
 import numpy as np
 import pandas as pd
 
+
 def empiricalCovarianceMatrix(quarterCovarianceMatrixList):
     '''
     Function to calculate the empirical covariance matrix. The covariance matrix is calculated using exactly the same formula as in the paper.
@@ -159,14 +160,22 @@ def hybridPredictor(uniformlyDistributedReturns, datasetWithPercentageChange, ex
     hybridModelDict = {}
 
     lambdaParam = 0 # this is the initial value for each quarter
+    #extract the initial month from the start date
     initialMonth = datasetWithPercentageChange.index[0].month # get the month of the first day of the test dataset
     initialQuarter = (initialMonth-1)//3 + 1 # get the quarter of the first day of the test dataset
     tempQuarter = initialQuarter # this is the initial quarter
 
     numberOfDaysFirstQuarter = len(datasetWithPercentageChange.loc[(datasetWithPercentageChange.index.year == start_date.year) & (datasetWithPercentageChange.index.quarter == initialQuarter)]) # get the number of days in the first quarter
-    lambdaIncrement = 1 / (numberOfDaysFirstQuarter - 1) # this is the increment of the lambda parameter
+    lambdaIncrement = 1 / max((numberOfDaysFirstQuarter - 1), 1) # this is the increment of the lambda parameter, i also avoid division by zero
 
     for t in datasetWithPercentageChange.index:
+
+        # check if the matrix exists in every dictionary
+        if t not in expandingWindowDict or t not in predictorDict:
+            continue
+
+        ewMatrix = expandingWindowDict[t]
+        predMatrix = predictorDict[t]
 
         # get the quarter of the current day
         quarter = (t.month-1)//3 + 1
@@ -181,7 +190,7 @@ def hybridPredictor(uniformlyDistributedReturns, datasetWithPercentageChange, ex
             lambdaIncrement = 1 / (numberOfDaysInQuarter - 1)
 
         # calculate the covariance matrix using the hybrid model
-        hybrid_cov_matrix = (1 - lambdaParam) * predictorDict[t] + lambdaParam * expandingWindowDict[t] # covariance matrix at time t
+        hybrid_cov_matrix = (1 - lambdaParam) * predMatrix + lambdaParam * ewMatrix # covariance matrix at time t
 
         # truncate every element of the covariance matrix to 6 decimals
         hybrid_cov_matrix = hybrid_cov_matrix.round(6)
