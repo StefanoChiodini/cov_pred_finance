@@ -122,4 +122,4 @@ for(i in startIndexOfTestingMatrices:length(scaledMatrices)) {
 }
 
 # Write the combined data frame for the testing set to a CSV file
-write.csv(testingMatrices, "AllCovMatricesForTesting.csv", row.names = FALSE)
+write.csv(testingMatrices, "AllCovMatricesForValidation.csv", row.names = FALSE)
