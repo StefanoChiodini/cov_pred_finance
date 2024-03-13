@@ -59,8 +59,8 @@ def removeRandomDays(dailyChangeReturnDataset, D):
     return interpolatedReturns
 
 
-stocksPrices = pd.read_csv('data/threeStocksPortfolios.csv', index_col=0, parse_dates=True)
-stocksPercentageChangeReturn = pd.read_csv('data/threeStocksPortfolioPercentageChange.csv', index_col=0, parse_dates=True)
+stocksPrices = pd.read_csv('data/nineStocksPortfolios.csv', index_col=0, parse_dates=True)
+stocksPercentageChangeReturn = pd.read_csv('data/nineStocksPortfolioPercentageChange.csv', index_col=0, parse_dates=True)
 uniformlyDistributedReturns = stocksPercentageChangeReturn.copy() # this is a copy of the original dataset returns; i will use this to make it non-uniformly distributed
 
 # Risk-free rate
