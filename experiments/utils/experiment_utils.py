@@ -101,6 +101,61 @@ def RMSE(datasetWithPercentageChange, predictedCovariancesDict, realCovariancesD
     return RMSEs
 
 
+def RMSEforSingleVolatility(datasetWithPercentageChange, predictedVolatilityDict, realVolatilityDict, startDate):
+    '''
+    This function calculates the Root Mean Squared Error quarter by quarter between predicted and realized volatility of the specified asset(like aapl, ibm, mcd...).
+    So this function returns a vector of RMSEs, one for each quarter.
+    '''
+    # define a list of residuals (difference between predicted and realized covariance matrices)
+    volatilityResiduals = []
+    volatilityRMSEs = [] # this is the vector of RMSEs(one value for each quarter)
+
+    # take the inital month from the start date
+    initialMonth = startDate.month
+    initialQuarter = (initialMonth - 1) // 3 + 1
+    tempQuarter = initialQuarter
+
+    N = len(datasetWithPercentageChange.loc[(datasetWithPercentageChange.index.year == startDate.year) & (datasetWithPercentageChange.index.quarter == initialQuarter)]) # get the number of days in the first quarter
+
+    for t in datasetWithPercentageChange.index:
+
+        if t not in predictedVolatilityDict or t not in realVolatilityDict:
+            continue
+
+        # get the quarter of the current date
+        quarter = (t.month - 1) // 3 + 1
+
+        # if the quarter has changed, calculate the RMSE
+        if quarter != tempQuarter:
+
+            # calculate the RMSE
+            residualsSum = sum(volatilityResiduals) # sum of the residuals
+            RMSE = np.sqrt(residualsSum / N) # calculate the RMSE
+            volatilityRMSEs.append(RMSE) # append the RMSE to the list of RMSEs
+
+            # reset the variables
+            tempQuarter = quarter
+            N = len(datasetWithPercentageChange.loc[(datasetWithPercentageChange.index.year == t.year) & (datasetWithPercentageChange.index.quarter == quarter)]) # get the number of days in the quarter
+            volatilityResiduals = [] # reset the residuals list
+
+        predictedAssetVolatility = predictedVolatilityDict[t] # get the predicted volatility at time t
+
+        realAssetVolatility = realVolatilityDict[t] # get the realized volatility at time t
+
+        # calculate the residual
+        residual = (realAssetVolatility - predictedAssetVolatility) ** 2
+
+        # append the residual to the list of residuals
+        volatilityResiduals.append(residual)
+    
+    # calculate the RMSE for the last quarter
+    residualsSum = sum(volatilityResiduals) # sum of the residuals
+    RMSE = np.sqrt(residualsSum / N) # calculate the RMSE
+    volatilityRMSEs.append(RMSE) # append the RMSE to the list of RMSEs
+
+    return volatilityRMSEs
+
+
 def yearly_SR(trader, plot=True, regression_line=True):
     rets = pd.Series(trader.rets.flatten(), index=trader.returns.index)
 
