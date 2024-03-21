@@ -3,6 +3,7 @@ from __future__ import annotations
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import os
 
 from cvx.covariance.regularization import em_regularize_covariance
 from cvx.covariance.regularization import regularize_covariance
@@ -54,10 +55,10 @@ def RMSE(datasetWithPercentageChange, predictedCovariancesDict, realCovariancesD
     '''
     # define a list of residuals (difference between predicted and realized covariance matrices)
     residuals = []
-    RMSEs = [] # this is the vector of RMSEs(one value for each quarter)
+    RMSEs = {} # this is the dictionary of RMSEs(one value for each quarter)
 
     # take the inital month from the start date
-    initialMonth = startDate.month
+    initialMonth = datasetWithPercentageChange.index[0].month
     initialQuarter = (initialMonth - 1) // 3 + 1
     tempQuarter = initialQuarter
 
@@ -74,11 +75,13 @@ def RMSE(datasetWithPercentageChange, predictedCovariancesDict, realCovariancesD
         # if the quarter has changed, calculate the RMSE
         if quarter != tempQuarter:
 
+            # get the timestamp of"yesterday"
+            yesterday = t - pd.Timedelta(days=1)
+
             # calculate the RMSE
             residualsSum = sum(residuals) # sum of the residuals
             RMSE = np.sqrt(residualsSum / N) # calculate the RMSE
-            RMSEs.append(RMSE) # append the RMSE to the list of RMSEs
-
+            RMSEs[yesterday] = RMSE # append the RMSE to the list of RMSEs
             # reset the variables
             tempQuarter = quarter
             N = len(datasetWithPercentageChange.loc[(datasetWithPercentageChange.index.year == t.year) & (datasetWithPercentageChange.index.quarter == quarter)]) # get the number of days in the quarter
@@ -96,7 +99,15 @@ def RMSE(datasetWithPercentageChange, predictedCovariancesDict, realCovariancesD
     # calculate the RMSE for the last quarter
     residualsSum = sum(residuals) # sum of the residuals
     RMSE = np.sqrt(residualsSum / N) # calculate the RMSE
-    RMSEs.append(RMSE) # append the RMSE to the list of RMSEs
+
+    # get the timestamp of"yesterday"
+    yesterday = t - pd.Timedelta(days=1)
+    RMSEs[yesterday] = RMSE # append the RMSE to the list of RMSEs
+
+    # now check if inside the RMSEs dictionary there are 0 values, if so, remove them
+    for key in list(RMSEs.keys()):
+        if RMSEs[key] == 0:
+            del RMSEs[key]
 
     return RMSEs
 
@@ -108,7 +119,7 @@ def RMSEforSingleVolatility(datasetWithPercentageChange, predictedVolatilityDict
     '''
     # define a list of residuals (difference between predicted and realized covariance matrices)
     volatilityResiduals = []
-    volatilityRMSEs = [] # this is the vector of RMSEs(one value for each quarter)
+    volatilityRMSEsDict = {} # this is the dict of RMSEs(one value for each quarter)
 
     # take the inital month from the start date
     initialMonth = startDate.month
@@ -128,10 +139,13 @@ def RMSEforSingleVolatility(datasetWithPercentageChange, predictedVolatilityDict
         # if the quarter has changed, calculate the RMSE
         if quarter != tempQuarter:
 
+            # get the timestamp of"yesterday"
+            yesterday = t - pd.Timedelta(days=1)
+
             # calculate the RMSE
             residualsSum = sum(volatilityResiduals) # sum of the residuals
             RMSE = np.sqrt(residualsSum / N) # calculate the RMSE
-            volatilityRMSEs.append(RMSE) # append the RMSE to the list of RMSEs
+            volatilityRMSEsDict[yesterday] = RMSE # append the RMSE to the list of RMSEs
 
             # reset the variables
             tempQuarter = quarter
@@ -151,9 +165,17 @@ def RMSEforSingleVolatility(datasetWithPercentageChange, predictedVolatilityDict
     # calculate the RMSE for the last quarter
     residualsSum = sum(volatilityResiduals) # sum of the residuals
     RMSE = np.sqrt(residualsSum / N) # calculate the RMSE
-    volatilityRMSEs.append(RMSE) # append the RMSE to the list of RMSEs
 
-    return volatilityRMSEs
+    # get the timestamp of"yesterday"
+    yesterday = t - pd.Timedelta(days=1)
+    volatilityRMSEsDict[yesterday] = RMSE # append the RMSE to the list of RMSEs
+
+    # remove 0 values from the dict
+    for key in list(volatilityRMSEsDict.keys()):
+        if volatilityRMSEsDict[key] == 0:
+            del volatilityRMSEsDict[key]
+
+    return volatilityRMSEsDict
 
 
 def yearly_SR(trader, plot=True, regression_line=True):
@@ -318,6 +340,47 @@ def log_likelihood(returns, Sigmas, means=None, scale=1):
     ).flatten()
 
 
+def log_likelihood_for_test(returns, Sigmas, means=None, scale=1):
+    """
+    this function is equal to the other log_likelihood function, but it saves the results in a csv file, so i can see the determinants
+    value behavior and the matrix product behavior when i modify the number of assets inside my portfolio
+    """
+    if means is None:
+        means = np.zeros_like(returns)
+
+    T, n = returns.shape
+
+    returns = returns.reshape(T, n, 1)
+    means = means.reshape(T, n, 1)
+
+    returns = returns * scale
+    means = means * scale
+    Sigmas = Sigmas * scale**2
+
+    dets = np.linalg.det(Sigmas).reshape(len(Sigmas), 1, 1)
+    Sigma_invs = np.linalg.inv(Sigmas)
+
+    matrixProduct = np.transpose(returns - means, axes=(0, 2, 1)) @ Sigma_invs @ (returns - means)
+
+    # print shape of dets and matrixProduct
+    print("dets shape: ", dets.shape)
+    print("matrixProduct shape: ", matrixProduct.shape)
+    
+    # dets shape is (T, 1, 1) and matrixProduct shape is (T, 1, 1), convert them to a list of scalars
+    dets = dets.flatten()
+    matrixProduct = matrixProduct.flatten()
+
+    logLikelihoodValue = (-n / 2 * np.log(2 * np.pi) - 1 / 2 * np.log(dets) - 1/2 * matrixProduct).flatten()
+
+    # now save the results in a csv file, where every row is a time t and the first column is the determinant value and the second column is the matrix product value
+    
+    results = np.column_stack((dets, matrixProduct, logLikelihoodValue))
+    np.savetxt("detsAndMatrixProduct9Assets.csv", results, delimiter=",")
+    print("results saved in detsAndMatrixProduct.csv")
+
+    return logLikelihoodValue
+
+
 def log_likelihood_sequential(returns, Sigmas, means=None, scale=1):
     """
     Computes Gaussian log likelihood sequentially
@@ -374,10 +437,6 @@ def rolling_window(returns, memory, min_periods=20):
             Sigmas[t] = alpha_new / alpha_old * Sigmas[t - 1] + alpha_new * (
                 np.outer(returns[t], returns[t])
             )
-        
-        # TODO: delete this print; is for testing purposes
-        #print("returns[t]: ", returns[t])  
-        #print("returns[t].shape: ", returns[t].shape)
 
     Sigmas = Sigmas[min_periods - 1 :]
     times = times[min_periods - 1 :]

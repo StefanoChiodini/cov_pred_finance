@@ -13,7 +13,7 @@ library(quantmod)
 
 
 # Load the full dataset
-fullTimeSeriesPrices <- read.csv('experiments/data/nineStocksPortfolios.csv', header = TRUE, stringsAsFactors = FALSE)
+fullTimeSeriesPrices <- read.csv('experiments/data/threeStocksPortfolios.csv', header = TRUE, stringsAsFactors = FALSE)
 
 # Calculate indices for each dataset segment
 trainingEndIndex <- 2291
@@ -55,13 +55,13 @@ logReturnsWholeSeries$Date <- NULL
 # univariate normal GARCH(1,1) for each series
 univariateGarchSpec <- ugarchspec(
     mean.model = list(armaOrder = c(0,0)), 
-    variance.model = list(garchOrder = c(3,3), model = 'sGARCH'), # sGARCH: standard GARCH
+    variance.model = list(garchOrder = c(1,1), model = 'sGARCH'), # sGARCH: standard GARCH
     distribution.model = 'norm',
     ) 
 
 # dcc specification - GARCH(1,1) for conditional correlations
 multivariateGarchSpec = dccspec(uspec = multispec(replicate(numAssets, univariateGarchSpec)), 
-                           dccOrder = c(3,3), 
+                           dccOrder = c(1,1), 
                            distribution = "mvnorm",
                            )
 
