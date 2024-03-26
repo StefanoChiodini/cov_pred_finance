@@ -321,11 +321,23 @@ def log_likelihood(returns, Sigmas, means=None, scale=1):
     """
     if means is None:
         means = np.zeros_like(returns)
+        print("means shape: ", means.shape)
 
     T, n = returns.shape
+    print("T: ", T)
+    print("n: ", n)
 
     returns = returns.reshape(T, n, 1)
     means = means.reshape(T, n, 1)
+
+    print("returns shape: ", returns.shape)
+    print("means shape: ", means.shape)
+
+    # print the first 2 terms of the returns and means
+    print("returns[0]: ", returns[0])
+    print("returns[1]: ", returns[1])
+    print("means[0]: ", means[0])
+    print("means[1]: ", means[1])
 
     returns = returns * scale
     means = means * scale
@@ -340,7 +352,7 @@ def log_likelihood(returns, Sigmas, means=None, scale=1):
     ).flatten()
 
 
-def log_likelihood_for_test(returns, Sigmas, means=None, scale=1):
+def log_likelihood_for_test(returns, Sigmas, dates, means=None, scale=1):
     """
     this function is equal to the other log_likelihood function, but it saves the results in a csv file, so i can see the determinants
     value behavior and the matrix product behavior when i modify the number of assets inside my portfolio
@@ -370,15 +382,25 @@ def log_likelihood_for_test(returns, Sigmas, means=None, scale=1):
     dets = dets.flatten()
     matrixProduct = matrixProduct.flatten()
 
-    logLikelihoodValue = (-n / 2 * np.log(2 * np.pi) - 1 / 2 * np.log(dets) - 1/2 * matrixProduct).flatten()
+    firstConstantTerm = -n / 2 * np.log(2 * np.pi)
+    determinants = 1 / 2 * np.log(dets)
+
+    logLikelihoodValue = (- n / 2 * np.log(2 * np.pi) - 1 / 2 * np.log(dets) - 1 / 2 * matrixProduct).flatten()
 
     # now save the results in a csv file, where every row is a time t and the first column is the determinant value and the second column is the matrix product value
     
     results = np.column_stack((dets, matrixProduct, logLikelihoodValue))
-    np.savetxt("detsAndMatrixProduct9Assets.csv", results, delimiter=",")
+    np.savetxt("detsAndMatrixProduct" + str(n) + "Assets.csv", results, delimiter=",")
     print("results saved in detsAndMatrixProduct.csv")
 
-    return logLikelihoodValue
+    # Create a DataFrame for matrixProduct with dates
+    matrix_product_df = pd.DataFrame({'Date': dates, 'MatrixProduct': 1/2 * matrixProduct})
+
+    first_constant_term_df = pd.DataFrame({'Date': dates, 'FirstConstantTerm': firstConstantTerm})
+
+    log_determinants_df = pd.DataFrame({'Date': dates, 'LogDeterminants': determinants})
+
+    return logLikelihoodValue, matrix_product_df, first_constant_term_df, log_determinants_df
 
 
 def log_likelihood_sequential(returns, Sigmas, means=None, scale=1):

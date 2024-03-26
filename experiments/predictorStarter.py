@@ -3,6 +3,8 @@ from pandas.tseries.offsets import BDay
 
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+
 import seaborn as sns
 import matplotlib.dates as md
 from tqdm import trange
@@ -59,8 +61,8 @@ def removeRandomDays(dailyChangeReturnDataset, D):
     return interpolatedReturns
 
 
-stocksPrices = pd.read_csv('data/nineStocksPortfolios.csv', index_col=0, parse_dates=True)
-stocksPercentageChangeReturn = pd.read_csv('data/nineStocksPortfolioPercentageChange.csv', index_col=0, parse_dates=True)
+stocksPrices = pd.read_csv('data/sixStocksPortfolios.csv', index_col=0, parse_dates=True)
+stocksPercentageChangeReturn = pd.read_csv('data/sixStocksPortfolioPercentageChange.csv', index_col=0, parse_dates=True)
 uniformlyDistributedReturns = stocksPercentageChangeReturn.copy() # this is a copy of the original dataset returns; i will use this to make it non-uniformly distributed
 
 # Risk-free rate
@@ -185,7 +187,6 @@ plt.text(pd.Timestamp('2022-02-24'), plt.ylim()[1], 'Ukraine War', horizontalali
 
 plt.xlim(left=stocksPrices.index[0], right=stocksPrices.index[-1])
 plt.show()
-
 
 # Plot also the percentage change of the stocks with highlights and annotations
 plt.figure(figsize=(14, 7))
