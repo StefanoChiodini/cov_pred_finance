@@ -20,6 +20,8 @@ from utils.portfolio_backtests import MeanVariance
 import datetime
 import random
 
+from configurations import *
+
 sns.set()
 sns.set(font_scale=1.5)
 
@@ -60,9 +62,18 @@ def removeRandomDays(dailyChangeReturnDataset, D):
     
     return interpolatedReturns
 
+# here i select the correct configuration for the test part of every predictor
+if numberOfAssets == 3:
+    predictorsConfiguration = predictorConfigurations3
 
-stocksPrices = pd.read_csv('data/sixStocksPortfolios.csv', index_col=0, parse_dates=True)
-stocksPercentageChangeReturn = pd.read_csv('data/sixStocksPortfolioPercentageChange.csv', index_col=0, parse_dates=True)
+elif numberOfAssets == 6:
+    predictorsConfiguration = predictorConfigurations6
+
+elif numberOfAssets == 9:
+    predictorsConfiguration = predictorConfigurations9
+
+stocksPrices = pd.read_csv('data/' + str(numberOfAssets) + 'StocksPortfolios.csv', index_col=0, parse_dates=True)
+stocksPercentageChangeReturn = pd.read_csv('data/' + str(numberOfAssets) + 'StocksPortfolioPercentageChange.csv', index_col=0, parse_dates=True)
 uniformlyDistributedReturns = stocksPercentageChangeReturn.copy() # this is a copy of the original dataset returns; i will use this to make it non-uniformly distributed
 
 # Risk-free rate
