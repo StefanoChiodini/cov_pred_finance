@@ -11,9 +11,17 @@ library(rugarch)
 library(rmgarch)
 library(quantmod)
 
+# Load the dotenv package
+library(dotenv)
+
+# Load the .env file
+load_dot_env(file = "experiments/.env")  # specify the path to your .env file if it's not in the current directory
+
+# now get the environment variables
+numberOfAssets <- Sys.getenv("NUMBER_OF_ASSETS")
 
 # Load the full dataset
-fullTimeSeriesPrices <- read.csv('experiments/data/threeStocksPortfolios.csv', header = TRUE, stringsAsFactors = FALSE)
+fullTimeSeriesPrices <- read.csv(paste0('experiments/data/', numberOfAssets, 'StocksPortfolios.csv'), header = TRUE, stringsAsFactors = FALSE)
 
 # Calculate indices for each dataset segment
 trainingEndIndex <- 2291

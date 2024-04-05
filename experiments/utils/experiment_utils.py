@@ -109,9 +109,10 @@ def RMSE(datasetWithPercentageChange, predictedCovariancesDict, realCovariancesD
         if RMSEs[key] == 0:
             del RMSEs[key]
 
-    # the unit of measure of rmse is % squared (%^2) so i convert each value to % 
+    # the unit of measure of rmse is % squared (%^2) so i convert each value to % by taking the square root of each value
     for key in RMSEs:
-        # TODO: ADJUST THE UNIT OF MEASURE
+        RMSEs[key] = np.sqrt(RMSEs[key])
+
     return RMSEs
 
 
@@ -177,6 +178,10 @@ def RMSEforSingleVolatility(datasetWithPercentageChange, predictedVolatilityDict
     for key in list(volatilityRMSEsDict.keys()):
         if volatilityRMSEsDict[key] == 0:
             del volatilityRMSEsDict[key]
+
+    # adjust the unit of measure of rmse
+    for key in volatilityRMSEsDict:
+        volatilityRMSEsDict[key] = np.sqrt(volatilityRMSEsDict[key])
 
     return volatilityRMSEsDict
 

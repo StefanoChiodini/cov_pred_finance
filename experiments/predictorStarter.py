@@ -62,6 +62,7 @@ def removeRandomDays(dailyChangeReturnDataset, D):
     
     return interpolatedReturns
 
+
 # here i select the correct configuration for the test part of every predictor
 if numberOfAssets == 3:
     predictorsConfiguration = predictorConfigurations3

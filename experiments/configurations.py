@@ -1,6 +1,10 @@
 # this file contains the configuration for the 6 predictors in order to skip the validation step and go directly to the test step;
 # here there are the best parameters found for each predictor in the case of 3,6 and 9 assets
-numberOfAssets = 3
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+numberOfAssets = int(os.getenv("NUMBER_OF_ASSETS"))
 
 # 3 assets
 predictorConfigurations3 = {
