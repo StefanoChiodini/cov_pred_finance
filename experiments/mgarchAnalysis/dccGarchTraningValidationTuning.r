@@ -10,18 +10,39 @@ library(PerformanceAnalytics)
 library(rugarch)
 library(rmgarch)
 library(quantmod)
+library(jsonlite)
 
 # Load the dotenv package
 library(dotenv)
 
-# Load the .env file
-load_dot_env(file = "experiments/.env")  # specify the path to your .env file if it's not in the current directory
+file_path_first_part <- "C:/Users/chiod/Desktop/MyData/universita/tesi/openSourceImplementations/cov_pred_finance/"
 
-# now get the environment variables
+# Load the .env file that has this path: file_path_first_part + "experiments/.env"
+load_dot_env(file = paste0(file_path_first_part, "experiments/.env"))  # specify the path to your .env file if it's not in the current directory
+
+# Get environment variables
 numberOfAssets <- Sys.getenv("NUMBER_OF_ASSETS")
+USE_HYBRID_MGARCH <- as.logical(Sys.getenv("USE_HYBRID_MGARCH"))
+
+# Load the JSON configuration
+configFilePath <- paste0(file_path_first_part, "experiments/configurations.json")
+configurations <- fromJSON(configFilePath)
+
+# Select configuration based on numberOfAssets
+specificConfig <- configurations[[numberOfAssets]]
+
+# Assign modelOrder based on USE_HYBRID_MGARCH
+if (USE_HYBRID_MGARCH) {
+    modelOrder <- specificConfig$HYBRIDMGARCH_order
+} else {
+    modelOrder <- specificConfig$MGARCH_order
+}
+
+# print the value of modelOrder
+cat("\nModel order:", modelOrder, "\n")
 
 # Load the full dataset
-fullTimeSeriesPrices <- read.csv(paste0('experiments/data/', numberOfAssets, 'StocksPortfolios.csv'), header = TRUE, stringsAsFactors = FALSE)
+fullTimeSeriesPrices <- read.csv(paste0(file_path_first_part, 'experiments/data/', numberOfAssets, 'StocksPortfolios.csv'), header = TRUE, stringsAsFactors = FALSE)
 
 # Calculate indices for each dataset segment
 trainingEndIndex <- 2291
@@ -41,13 +62,14 @@ cat("Training data size:", trainingSize, "\n")
 cat("Validation data size:", validationSize, "\n")
 cat("Testing data size:", testingSize, "\n")
 
-# Number of assets
-numAssets <- ncol(fullTimeSeriesPrices) - 1  # the first column is 'Date'
 
 # Calculate log-returns for GARCH analysis for each asset
 logReturnsWholeSeries <- data.frame(Date = fullTimeSeriesPrices$Date[-1])  # Initialize with Date if needed
 
-for (i in 2:(numAssets + 1)) {  # Assuming the first column is 'Date'
+# transfrom the numberOfAssets to integer
+numberOfAssets <- as.integer(numberOfAssets)
+
+for (i in 2:(numberOfAssets + 1)) {  # Assuming the first column is 'Date'
   assetName <- colnames(fullTimeSeriesPrices)[i]
   seriesWholeSeries <- fullTimeSeriesPrices[[assetName]]
   logReturnsWholeSeries[[assetName]] <- diff(log(seriesWholeSeries))
@@ -63,13 +85,13 @@ logReturnsWholeSeries$Date <- NULL
 # univariate normal GARCH(1,1) for each series
 univariateGarchSpec <- ugarchspec(
     mean.model = list(armaOrder = c(0,0)), 
-    variance.model = list(garchOrder = c(1,1), model = 'sGARCH'), # sGARCH: standard GARCH
+    variance.model = list(garchOrder = c(modelOrder, modelOrder), model = 'sGARCH'), # sGARCH: standard GARCH
     distribution.model = 'norm',
     ) 
 
 # dcc specification - GARCH(1,1) for conditional correlations
-multivariateGarchSpec = dccspec(uspec = multispec(replicate(numAssets, univariateGarchSpec)), 
-                           dccOrder = c(1,1), 
+multivariateGarchSpec = dccspec(uspec = multispec(replicate(numberOfAssets, univariateGarchSpec)), 
+                           dccOrder = c(modelOrder,modelOrder), 
                            distribution = "mvnorm",
                            )
 
@@ -129,5 +151,6 @@ for(i in startIndexOfTestingMatrices:length(scaledMatrices)) {
   testingMatrices <- rbind(testingMatrices, matrixDF)
 }
 
+full_path_name <- paste0(file_path_first_part, 'AllCovMatricesForValidation.csv')
 # Write the combined data frame for the testing set to a CSV file
-write.csv(testingMatrices, "AllCovMatricesForValidation.csv", row.names = FALSE)
+write.csv(testingMatrices, full_path_name, row.names = FALSE)

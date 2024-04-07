@@ -20,58 +20,33 @@ from utils.portfolio_backtests import MeanVariance
 import datetime
 import random
 
-from configurations import *
+import json
+import subprocess
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 sns.set()
 sns.set(font_scale=1.5)
 
-boolUniformlyDistributedDataset = True
-percentageOfRemovedDays = 10
+numberOfAssets = int(os.getenv("NUMBER_OF_ASSETS"))
 
+file_path_first_part = os.getenv("FILE_PATH")
+path_to_json_file_configurations = file_path_first_part + 'experiments/configurations.json'
 
-# code to make the dataset not uniformly distributed
-def removeRandomDays(dailyChangeReturnDataset, D):
-    '''
-    This function removes a percentage of days from the dataset and interpolates the returns of the removed days
-    returnDataset: dataframe of returnDataset
-    D: percentage of days to eliminate randomly from the dataset:10 = 10% of the days are eliminated
-    '''
+# Load the configurations from the JSON file
+with open(path_to_json_file_configurations, 'r') as config_file:
+    allConfigurations = json.load(config_file)
 
-    # calculate the size of the dataset(so the lenght of the column)
-    datasetSize = len(dailyChangeReturnDataset.index)
-    number_of_days_to_eliminate = int(datasetSize * D / 100)
+# Convert numberOfAssets to a string since JSON keys are stored as strings
+key = str(numberOfAssets)
 
-    # Define the range of indices that can be removed; avoid the first and last days
-    valid_indices = list(range(2, datasetSize - 2)) # Randomly select a group of indices to remove
+# Select the correct configuration based on the number of assets
+if key in allConfigurations:
+    predictorsConfiguration = allConfigurations[key]
+else:
+    raise ValueError(f"No configuration found for {numberOfAssets} assets.")
 
-    #Randomly select a group of indices to remove
-    indices_to_remove = sorted(random.sample(valid_indices, number_of_days_to_eliminate))
-    print("len of indices to remove and interpolate: " + str(len(indices_to_remove)))
-    
-    # Create a copy of the DataFrame to perform interpolation
-    interpolatedReturns = dailyChangeReturnDataset.copy()
-
-    # Interpolate the returns using linear interpolation method
-    interpolatedReturns.iloc[indices_to_remove] = np.nan
-    interpolatedReturns = interpolatedReturns.interpolate(method='linear', axis=0, limit_area='inside')
-    # limit the number of decimals to 6
-    interpolatedReturns = interpolatedReturns.round(6)
-
-    # save the interpolated dataset in a csv file
-    interpolatedReturns.to_csv("interpolatedReturns.csv")
-    
-    return interpolatedReturns
-
-
-# here i select the correct configuration for the test part of every predictor
-if numberOfAssets == 3:
-    predictorsConfiguration = predictorConfigurations3
-
-elif numberOfAssets == 6:
-    predictorsConfiguration = predictorConfigurations6
-
-elif numberOfAssets == 9:
-    predictorsConfiguration = predictorConfigurations9
 
 stocksPrices = pd.read_csv('data/' + str(numberOfAssets) + 'StocksPortfolios.csv', index_col=0, parse_dates=True)
 stocksPercentageChangeReturn = pd.read_csv('data/' + str(numberOfAssets) + 'StocksPortfolioPercentageChange.csv', index_col=0, parse_dates=True)
@@ -125,41 +100,6 @@ print("\ntotal dataset lenght: ", len(stocksPrices))
 print("sum of the three datasets: ", len(trainingDataWithPrices) + len(validationDataWithPrices) + len(testDataWithPrices))
 
 print("original returns dataframe dimension: " + str(stocksPercentageChangeReturn.shape))
-
-if not boolUniformlyDistributedDataset:
-
-    # if i consider the non-uniformly distributed dataset, i have to apply the linear interpolation to the data to fill the missing values;
-    # so i will have not the original dataset with real values, but a dataset with interpolated values
-    stocksPercentageChangeReturn = removeRandomDays(uniformlyDistributedReturns, percentageOfRemovedDays) 
-    print("returns dataframe dimention after interpolating random days: " + str(stocksPercentageChangeReturn.shape))
-
-    originalDatasetVolatility = uniformlyDistributedReturns.std()
-    print("original dataset volatility: " + str(originalDatasetVolatility))
-
-    interterpolatedDatasetVolatility = stocksPercentageChangeReturn.std()
-    print("interpolated dataset volatility: " + str(interterpolatedDatasetVolatility))
-
-    # now i have to modify also the training, validation and test datasets; not only the complete dataset because otherwise i will have the full dataset with interpolated values
-    # and the training, validation and test datasets with real values
-
-    # 70% training
-    trainingDataWithPrices = stocksPrices.loc[:date_70_percent]
-    trainingDataWithPercentageChange = stocksPercentageChangeReturn.loc[:date_70_percent]
-
-    # Adjust the start date for the validation set to exclude the last date of the training set
-    validation_start_date = date_70_percent + BDay(1)
-
-    # 20% validation
-    validationDataWithPrices = stocksPrices.loc[validation_start_date:date_90_percent]
-    validationDataWithPercentageChange = stocksPercentageChangeReturn.loc[validation_start_date:date_90_percent]
-
-    # Adjust the start date for the test set to exclude the last date of the validation set
-    test_start_date = date_90_percent + BDay(1)
-
-    # 10% test
-    testDataWithPrices = stocksPrices.loc[test_start_date:]
-    testDataWithPercentageChange = stocksPercentageChangeReturn.loc[test_start_date:]
-
 
 # Import pickle
 with open('data/permco_to_ticker.pkl', 'rb') as f:
