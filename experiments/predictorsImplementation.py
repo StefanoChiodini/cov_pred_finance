@@ -8,6 +8,34 @@ import numpy as np
 import pandas as pd
 
 
+def calculate_lambda_increment(day_number, days_in_quarter, increment_type ='linear'):
+    """
+    Calculate the lambda increment based on the increment type.
+    
+    Args:
+    - day_number: current day number in the quarter.
+    - days_in_quarter: total number of days in the quarter.
+    - increment_type: type of increment - 'linear', 'exponential', 'logarithmic', etc.
+
+    Returns:
+    - The calculated lambda increment.
+    """
+
+    # TODO: CONTROL THE CORRECTNESS OF THIS FUNCTION
+
+    if increment_type == 'linear':
+        return 1 / max((days_in_quarter - 1), 1)
+    elif increment_type == 'exponential':
+        # Example exponential increment (needs to be adjusted based on requirements)
+        return (1 - np.exp(-day_number)) / (1 - np.exp(-days_in_quarter))
+    elif increment_type == 'logarithmic':
+        # Example logarithmic increment (needs to be adjusted based on requirements)
+        return np.log1p(day_number) / np.log1p(days_in_quarter)
+    # You can add more increment types with corresponding formulas here
+    else:
+        raise ValueError("Unknown increment type")
+
+
 def empiricalCovarianceMatrix(quarterCovarianceMatrixList):
     '''
     Function to calculate the empirical covariance matrix. The covariance matrix is calculated using exactly the same formula as in the paper.
@@ -152,21 +180,20 @@ def expandingWindowPredictor(uniformlyDistributedReturns):
     return expandingWindowDict
 
 
-# HYBRID MODEL IMPLEMENTATION
-def hybridPredictor(uniformlyDistributedReturns, datasetWithPercentageChange, expandingWindowDict, predictorDict, start_date):
+def hybridPredictorNewVersion(uniformlyDistributedReturns, datasetWithPercentageChange, expandingWindowDict, predictorDict, start_date, increment_type='linear'):
     '''
     This function implements the hybrid predictor.
     '''
     hybridModelDict = {}
 
-    lambdaParam = 0 # this is the initial value for each quarter
+    lambdaParam = 0  # initial value of lambda for each quarter
     #extract the initial month from the start date
     initialMonth = datasetWithPercentageChange.index[0].month # get the month of the first day of the test dataset
     initialQuarter = (initialMonth-1)//3 + 1 # get the quarter of the first day of the test dataset
     tempQuarter = initialQuarter # this is the initial quarter
 
-    numberOfDaysFirstQuarter = len(datasetWithPercentageChange.loc[(datasetWithPercentageChange.index.year == start_date.year) & (datasetWithPercentageChange.index.quarter == initialQuarter)]) # get the number of days in the first quarter
-    lambdaIncrement = 1 / max((numberOfDaysFirstQuarter - 1), 1) # this is the increment of the lambda parameter, i also avoid division by zero
+    numberOfDaysInQuarter = len(datasetWithPercentageChange.loc[(datasetWithPercentageChange.index.year == start_date.year) & (datasetWithPercentageChange.index.quarter == initialQuarter)])
+    day_number = 0  # to keep track of the day number within the quarter
 
     for t in datasetWithPercentageChange.index:
 
@@ -177,7 +204,6 @@ def hybridPredictor(uniformlyDistributedReturns, datasetWithPercentageChange, ex
         ewMatrix = expandingWindowDict[t]
         predMatrix = predictorDict[t]
 
-        # get the quarter of the current day
         quarter = (t.month-1)//3 + 1
 
         if quarter != tempQuarter:
@@ -187,7 +213,7 @@ def hybridPredictor(uniformlyDistributedReturns, datasetWithPercentageChange, ex
 
             # i recalculate the increment of the lambda parameter
             numberOfDaysInQuarter = len(datasetWithPercentageChange.loc[(datasetWithPercentageChange.index.year == t.year) & (datasetWithPercentageChange.index.quarter == quarter)])
-            lambdaIncrement = 1 / (numberOfDaysInQuarter - 1)
+            day_number = 0
 
         # calculate the covariance matrix using the hybrid model
         hybrid_cov_matrix = (1 - lambdaParam) * predMatrix + lambdaParam * ewMatrix # covariance matrix at time t
@@ -198,11 +224,11 @@ def hybridPredictor(uniformlyDistributedReturns, datasetWithPercentageChange, ex
         # convert the hybrid covariance matrix to a DataFrame for this specific date
         hybridModelDict[t] = pd.DataFrame(hybrid_cov_matrix, index=uniformlyDistributedReturns.columns, columns=uniformlyDistributedReturns.columns)
 
-        # Increment lambda, ensuring it reaches 1 on the last day of the quarter
-        if lambdaParam + lambdaIncrement > 1:
+        if day_number == numberOfDaysInQuarter - 1:
             lambdaParam = 1
         else:
+            lambdaIncrement = calculate_lambda_increment(day_number, numberOfDaysInQuarter, increment_type)
             lambdaParam += lambdaIncrement
+        day_number += 1
 
     return hybridModelDict
-    

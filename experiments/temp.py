@@ -1,3 +1,4 @@
+'''
 # in this file i will unify all the csv files into one; so there will be the file with prices and the file with the percentage change
 
 import pandas as pd
@@ -82,3 +83,55 @@ merged_pct_change_df.sort_values(by='Date', inplace=True)
 merged_pct_change_df.to_csv('experiments/data/nineStocksPortfolioPercentageChange.csv', index=False)
 
 print('Merged percentage change CSV with 6 digit truncation created successfully.')
+'''
+
+import csv
+
+with open("C:\\Users\\chiod\\Desktop\\MyData\\universita\\tesi\\openSourceImplementations\\cov_pred_finance\\experiments\\data\\9StocksPortfolioPercentageChange.csv", "r") as file:
+    reader = csv.reader(file)
+    next(reader)
+    highest = float("-inf")
+    lowest = float("inf")
+    for row in reader:
+        # for every row skip the first element which is the date
+        row = row[1:]
+        for value in row:
+            value = float(value)
+            if value > highest:
+                highest = value
+            if value < lowest:
+                lowest = value
+    
+    print(f"The highest value is {highest} and the lowest value is {lowest}")
+
+    highest = highest * 100
+    lowest = lowest * 100
+
+    print(f"The highest value is {highest}% and the lowest value is {lowest}%")
+    #The highest value is 20.4271% and the lowest value is -15.8754%
+
+
+# ok now take every value of the second column and calculate the mean value of the percentage change
+with open("C:\\Users\\chiod\\Desktop\\MyData\\universita\\tesi\\openSourceImplementations\\cov_pred_finance\\experiments\\data\\9StocksPortfolioPercentageChange.csv", "r") as file:
+    reader = csv.reader(file)
+    next(reader)
+    sum = 0
+    count = 0
+    for row in reader:
+        # for every row take only the second element
+        row = row[1:2] 
+        # assert that the number of elements contained in the row is 1
+        assert len(row) == 1
+        
+        for value in row:
+            value = float(value)
+            sum += value
+            count += 1
+    
+    mean = sum / count
+
+    print(f"The mean value of the percentage change is {mean}")
+
+    mean = mean * 100
+
+    print(f"The mean value of the percentage change is {mean}%")
