@@ -111,16 +111,3 @@ def predictorPerformance(predictors, names, uniformlyDistributedReturns, testDat
         print(f"stdLoglikelihood{name}: {logLikelihoodMetrics[1]:.3f}")
         print(f"maxLoglikelihood{name}: {logLikelihoodMetrics[2]:.3f}")
 
-
-    #
-    # MSEs
-    #
-
-    for i, predictorDict in enumerate(predictors):
-        if names[i] != "PRESCIENT":
-            MSE_temp = MSE(testDataWithPercentageChange, predictorDict).resample("Q").mean()
-
-            print("\n" + names[i] + " MSE")
-            print(f"mean: {MSE_temp.mean():.10f}")
-            print(f"std: {MSE_temp.std():.10f}")
-            print(f"max: {MSE_temp.max():.10f}")

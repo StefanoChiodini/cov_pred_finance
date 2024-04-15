@@ -72,6 +72,71 @@ def plot_prices_volatilities_for_predictor(stock_prices, real_volatility, real_v
     plt.tight_layout()
     plt.show()
 
+
+def plot_volatility(predictorDict, start_date, end_date, predictor_name):
+    '''
+    this function is for plotting assets volatilities
+    '''
+
+    predictor_volatilities = {} # this dictionary will contain the volatilities of the 3 assets for every day with the same key of the predictorDict dictionary(the timestamp)
+    for date, cov_matrix in predictorDict.items():
+        volatilities = np.sqrt(np.diag(cov_matrix.values))
+        predictor_volatilities[date] = pd.DataFrame(data = volatilities, index = cov_matrix.index, columns = ["volatility"])
+
+    # now predictor_volatilities is a dictionary that contains the real volatilities of the 3 assets for every day with the same key of the prescientDict dictionary(the timestamp)
+
+    # filter the dictionary between the start and end date
+    predictor_volatilities = {k: v for k, v in predictor_volatilities.items() if k >= start_date and k <= end_date}
+
+    # now separate the real volatilities of the 3 assets in 3 different dataframes
+    volatility_dict_aapl, volatility_dict_ibm, volatility_dict_mcd = {}, {}, {}
+
+    for date, volatilities in predictor_volatilities.items():
+        volatility_dict_aapl[date] = volatilities.loc[7]["volatility"] # 7 is the PERMCO code of AAPL
+        volatility_dict_ibm[date] = volatilities.loc[20990]["volatility"] # 20990 is the PERMCO code of IBM
+        volatility_dict_mcd[date] = volatilities.loc[21177]["volatility"] # 21177 is the PERMCO code of MCD
+
+    # check if dictionaries are empty or not
+    if not volatility_dict_aapl or not volatility_dict_ibm or not volatility_dict_mcd:
+        raise ValueError("No volatilities found for the specified dates.")
+    
+    # Convert the dictionaries to DataFrames for easier manipulation and plotting
+    df_volatility_aapl = pd.DataFrame(list(volatility_dict_aapl.items()), columns=['Date', 'AAPL Volatility'])
+    df_volatility_ibm = pd.DataFrame(list(volatility_dict_ibm.items()), columns=['Date', 'IBM Volatility'])
+    df_volatility_mcd = pd.DataFrame(list(volatility_dict_mcd.items()), columns=['Date', 'MCD Volatility'])
+
+    # Set the 'Date' column as the index
+    df_volatility_aapl.set_index('Date', inplace=True)
+    df_volatility_ibm.set_index('Date', inplace=True)
+    df_volatility_mcd.set_index('Date', inplace=True)
+
+    # Plot the real volatilities of the 3 assets
+    plt.figure(figsize=(18, 11))
+    plt.plot(df_volatility_aapl, label='AAPL Volatility')
+    plt.plot(df_volatility_ibm, label='IBM Volatility')
+    plt.plot(df_volatility_mcd, label='MCD Volatility')
+    plt.legend()
+    plt.title(f"Volatilities of the 3 assets with {predictor_name} Predictor")
+    plt.xlabel("Time(days)")
+    plt.ylabel("Volatility(%)")
+
+    # check if the 2 dates(2020-02-24 and 2022-02-24) are in the range of the dataframe, if yes add vertical lines and annotations
+    if pd.Timestamp('2020-02-24') in df_volatility_aapl.index:
+        # Adding vertical lines for specific events
+        plt.axvline(pd.Timestamp('2020-02-24'), color='gray', linestyle='--', lw=2)  # COVID start
+        # Annotations for the events
+        plt.text(pd.Timestamp('2020-02-24'), plt.ylim()[1], 'COVID', horizontalalignment='center', color='gray')
+
+    if  pd.Timestamp('2022-02-24') in df_volatility_aapl.index:
+        plt.axvline(pd.Timestamp('2022-02-24'), color='orange', linestyle='--', lw=2)  # Ukraine War start
+        plt.text(pd.Timestamp('2022-02-24'), plt.ylim()[1], 'Ukraine War', horizontalalignment='center', color='orange')
+
+    # Set x-axis between the first and last day of a dataframe for example aapl dataframe
+    plt.xlim(left=df_volatility_aapl.index[0], right=df_volatility_aapl.index[-1])
+
+    return df_volatility_aapl, df_volatility_ibm, df_volatility_mcd, volatility_dict_aapl, volatility_dict_ibm, volatility_dict_mcd
+
+
 sns.set()
 sns.set(font_scale=1.5)
 prescientDict = {}
@@ -260,53 +325,11 @@ print(prescientDict[list(prescientDict.keys())[150]])
 # now calculates/extract the real volatilities of the 3 assets
 real_volatilities = {}
 
-for date, cov_matrix in prescientDict.items():
-    volatilities = np.sqrt(np.diag(cov_matrix.values))
-    real_volatilities[date] = pd.DataFrame(data = volatilities, index = cov_matrix.index, columns = ["volatility"])
+# now filter the rw volatilities between the start and end date
+real_volatility_startDate = pd.to_datetime('2010-01-04')
+real_volatility_endDate = pd.to_datetime('2023-01-03')
 
-# now real_volatilities is a dictionary that contains the real volatilities of the 3 assets for every day with the same key of the prescientDict dictionary(the timestamp)
-
-# now separate the real volatilities of the 3 assets in 3 different dataframes
-volatility_dict_aapl = {}
-volatility_dict_ibm = {}
-volatility_dict_mcd = {}
-
-for date, volatilities in real_volatilities.items():
-    volatility_dict_aapl[date] = volatilities.loc[7]["volatility"] # 7 is the PERMCO code of AAPL
-    volatility_dict_ibm[date] = volatilities.loc[20990]["volatility"] # 20990 is the PERMCO code of IBM
-    volatility_dict_mcd[date] = volatilities.loc[21177]["volatility"] # 21177 is the PERMCO code of MCD
-
-# Convert the dictionaries to DataFrames for easier manipulation and plotting
-df_volatility_aapl = pd.DataFrame(list(volatility_dict_aapl.items()), columns=['Date', 'AAPL Volatility'])
-df_volatility_ibm = pd.DataFrame(list(volatility_dict_ibm.items()), columns=['Date', 'IBM Volatility'])
-df_volatility_mcd = pd.DataFrame(list(volatility_dict_mcd.items()), columns=['Date', 'MCD Volatility'])
-
-# Set the 'Date' column as the index
-df_volatility_aapl.set_index('Date', inplace=True)
-df_volatility_ibm.set_index('Date', inplace=True)
-df_volatility_mcd.set_index('Date', inplace=True)
-
-# Plot the real volatilities of the 3 assets
-plt.figure(figsize=(18, 11))
-plt.plot(df_volatility_aapl, label='AAPL Volatility')
-plt.plot(df_volatility_ibm, label='IBM Volatility')
-plt.plot(df_volatility_mcd, label='MCD Volatility')
-plt.legend()
-plt.title("Real Volatilities of the 3 assets")
-plt.xlabel("Time(days)")
-plt.ylabel("Volatility(%)")
-
-# Adding vertical lines for specific events
-plt.axvline(pd.Timestamp('2020-02-24'), color='gray', linestyle='--', lw=2)  # COVID start
-plt.axvline(pd.Timestamp('2022-02-24'), color='orange', linestyle='--', lw=2)  # Ukraine War start
-
-# Annotations for the events
-plt.text(pd.Timestamp('2020-02-24'), plt.ylim()[1], 'COVID', horizontalalignment='center', color='gray')
-plt.text(pd.Timestamp('2022-02-24'), plt.ylim()[1], 'Ukraine War', horizontalalignment='center', color='orange')
-
-# Set x-axis limits to match the start and end dates
-plt.xlim(left=df_volatility_aapl.index[0], right=df_volatility_aapl.index[-1])
-plt.show()
+df_volatility_aapl, df_volatility_ibm, df_volatility_mcd, volatility_dict_aapl, volatility_dict_ibm, volatility_dict_mcd = plot_volatility(prescientDict, real_volatility_startDate, real_volatility_endDate, 'PRESCIENT')
 
 
 # EXPANDING WINDOW DICT
