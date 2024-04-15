@@ -83,7 +83,7 @@ merged_pct_change_df.sort_values(by='Date', inplace=True)
 merged_pct_change_df.to_csv('experiments/data/nineStocksPortfolioPercentageChange.csv', index=False)
 
 print('Merged percentage change CSV with 6 digit truncation created successfully.')
-'''
+
 
 import csv
 
@@ -135,3 +135,44 @@ with open("C:\\Users\\chiod\\Desktop\\MyData\\universita\\tesi\\openSourceImplem
     mean = mean * 100
 
     print(f"The mean value of the percentage change is {mean}%")
+'''
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+def logistic_function(x, k=10, x_0=0.5):
+    """
+    Logistic function to calculate the lambda parameter.
+    
+    Args:
+    - x: The normalized day within the quarter.
+    - k: The steepness of the curve.
+    - x_0: The x-value of the sigmoid's midpoint.
+
+    Returns:
+    - The lambda parameter as a value between 0 and 1.
+    """
+    return 1 / (1 + np.exp(-k * (x - x_0)))
+
+x = np.linspace(0, 1, 500)
+
+def logistic_function(x, k):
+    return 1 / (1 + np.exp(-k * (x - 0.5)))
+
+# Plot for different values of k to visually inspect the conditions
+k_values = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]  # Example range of k values
+
+plt.figure(figsize=(10, 6))
+
+for k in k_values:
+    plt.plot(x, logistic_function(x, k), label=f'Logistic k={k}')
+
+# Adding the linear function
+plt.plot(x, x, label='Linear function', linestyle='--', color='black')
+
+plt.title('Comparison of Logistic Functions with Linear Function')
+plt.xlabel('x')
+plt.ylabel('f(x)')
+plt.legend()
+plt.grid(True)
+plt.show()

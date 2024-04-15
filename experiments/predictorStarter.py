@@ -17,6 +17,8 @@ from utils.trading_model import *
 from utils.experiment_utils import *
 from utils.portfolio_backtests import MeanVariance
 
+from predictorsImplementation import * # this file contains the implementation of the predictors ( one function implementation for each predictor)
+
 import datetime
 import random
 
@@ -26,8 +28,53 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
+# code for plotting and compare inside a unique chart prices and volatilities for mgarch predictions
+
+def plot_prices_volatilities_for_predictor(stock_prices, real_volatility, real_volatility_startDate, real_volatility_endDate, predictorVolatility, asset_name, predictor_name):
+    '''
+    Function to plot prices and volatilities for a specific predictor
+    '''
+    # filter the real volatility between the start and end date
+    real_volatility_startDate = pd.to_datetime(real_volatility_startDate)
+    real_volatility_endDate = pd.to_datetime(real_volatility_endDate)
+
+    # Correct way to filter using & operator and parentheses
+    real_volatility_filtered = real_volatility[(real_volatility.index >= real_volatility_startDate) & (real_volatility.index <= real_volatility_endDate)]
+    predictorVolatility = predictorVolatility[(predictorVolatility.index >= real_volatility_startDate) & (predictorVolatility.index <= real_volatility_endDate)]
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(16, 11), sharex=True)
+
+    # Plot stock prices
+    ax1.plot(stock_prices[asset_name], label=f'{asset_name} Price', color='green')
+    ax1.set_title(f'{asset_name} Stock Prices')
+    ax1.set_ylabel('Price(dollars)')
+    ax1.legend(loc='upper left')
+    
+    # Plot real and rolling window volatilities
+    ax2.plot(real_volatility_filtered, label=f'Real {asset_name} Volatility', color='blue')
+    ax2.plot(predictorVolatility, label=f'{predictor_name} {asset_name} Volatility', color='orange', linestyle='--')
+    ax2.set_title(f'{asset_name} Volatility: Real vs {predictor_name}')
+    ax2.set_xlabel('Time(days)')
+    ax2.set_ylabel('Volatility(%)')
+    ax2.legend(loc='upper left')
+
+    # Set x-axis limits to match the start and end dates
+    ax1.set_xlim(left=real_volatility_startDate, right=real_volatility_endDate)
+    ax2.set_xlim(left=real_volatility_startDate, right=real_volatility_endDate)
+
+    # Adding vertical lines for specific events
+    ax1.axvline(pd.Timestamp('2020-02-24'), color='gray', linestyle='--', lw=2)  # COVID start
+    ax1.axvline(pd.Timestamp('2022-02-24'), color='red', linestyle='--', lw=2)  # Ukraine War start
+    
+    # Adding vertical lines for specific events
+    ax2.axvline(pd.Timestamp('2020-02-24'), color='gray', linestyle='--', lw=2)  # COVID start
+    ax2.axvline(pd.Timestamp('2022-02-24'), color='red', linestyle='--', lw=2)  # Ukraine War start
+    # Show the plot
+    plt.tight_layout()
+    plt.show()
+
 sns.set()
 sns.set(font_scale=1.5)
+prescientDict = {}
 
 numberOfAssets = int(os.getenv("NUMBER_OF_ASSETS"))
 
@@ -158,3 +205,119 @@ plt.text(pd.Timestamp('2022-02-24'), plt.ylim()[1], 'Ukraine War', horizontalali
 
 plt.xlim(left=stocksPercentageChangeReturn.index[0], right=stocksPercentageChangeReturn.index[-1])
 plt.show()
+
+
+# COVARIANCE PREDICTORS
+
+# PRESCIENT(GROUND TRUTH)
+
+# THIS CODE IS CALCULATING THE REAL VOLATILITY
+
+# prescient is a dictionary that contains the covariance matrix calculated using the ewma formula written inside the paper
+# the key of the dictionary is the timestamp and the value is the covariance matrix calculated for that day
+
+# The prescient predictor will always use the original dataset, so it will be uniformly distributed; this is because the prescient predictor is used to compare the other predictors
+# and we need to have a measure of the real covariance matrix; so this can't be used with the non-uniformly distributed dataset
+
+prescientDict = originalPrescientPredictor(uniformlyDistributedReturns)
+
+    
+# print the first 5 elements of the dictionary
+for key in list(prescientDict.keys())[:5]:
+    print(key, prescientDict[key])
+
+
+print("dimension of the prescient dictionary: " + str(len(prescientDict)))
+
+# print just the first key and value of the dictionary
+print(list(prescientDict.keys())[0])
+print(prescientDict[list(prescientDict.keys())[0]])
+
+# print the 60 and value of the dictionary
+print(list(prescientDict.keys())[30])
+print(prescientDict[list(prescientDict.keys())[30]])
+
+# print the 60 and value of the dictionary
+print(list(prescientDict.keys())[60])
+print(prescientDict[list(prescientDict.keys())[60]])
+
+# print the 60 and value of the dictionary
+print(list(prescientDict.keys())[90])
+print(prescientDict[list(prescientDict.keys())[90]])
+
+# print the 60 and value of the dictionary
+print(list(prescientDict.keys())[120])
+print(prescientDict[list(prescientDict.keys())[120]])
+
+# print the 60 and value of the dictionary
+print(list(prescientDict.keys())[150])
+print(prescientDict[list(prescientDict.keys())[150]])
+
+
+# REAL VOLATILITIES
+# THIS IS THE VISUALIZATION OF THE REAL VOLAITILITIES OF THE 3 ASSETS
+
+# now calculates/extract the real volatilities of the 3 assets
+real_volatilities = {}
+
+for date, cov_matrix in prescientDict.items():
+    volatilities = np.sqrt(np.diag(cov_matrix.values))
+    real_volatilities[date] = pd.DataFrame(data = volatilities, index = cov_matrix.index, columns = ["volatility"])
+
+# now real_volatilities is a dictionary that contains the real volatilities of the 3 assets for every day with the same key of the prescientDict dictionary(the timestamp)
+
+# now separate the real volatilities of the 3 assets in 3 different dataframes
+volatility_dict_aapl = {}
+volatility_dict_ibm = {}
+volatility_dict_mcd = {}
+
+for date, volatilities in real_volatilities.items():
+    volatility_dict_aapl[date] = volatilities.loc[7]["volatility"] # 7 is the PERMCO code of AAPL
+    volatility_dict_ibm[date] = volatilities.loc[20990]["volatility"] # 20990 is the PERMCO code of IBM
+    volatility_dict_mcd[date] = volatilities.loc[21177]["volatility"] # 21177 is the PERMCO code of MCD
+
+# Convert the dictionaries to DataFrames for easier manipulation and plotting
+df_volatility_aapl = pd.DataFrame(list(volatility_dict_aapl.items()), columns=['Date', 'AAPL Volatility'])
+df_volatility_ibm = pd.DataFrame(list(volatility_dict_ibm.items()), columns=['Date', 'IBM Volatility'])
+df_volatility_mcd = pd.DataFrame(list(volatility_dict_mcd.items()), columns=['Date', 'MCD Volatility'])
+
+# Set the 'Date' column as the index
+df_volatility_aapl.set_index('Date', inplace=True)
+df_volatility_ibm.set_index('Date', inplace=True)
+df_volatility_mcd.set_index('Date', inplace=True)
+
+# Plot the real volatilities of the 3 assets
+plt.figure(figsize=(18, 11))
+plt.plot(df_volatility_aapl, label='AAPL Volatility')
+plt.plot(df_volatility_ibm, label='IBM Volatility')
+plt.plot(df_volatility_mcd, label='MCD Volatility')
+plt.legend()
+plt.title("Real Volatilities of the 3 assets")
+plt.xlabel("Time(days)")
+plt.ylabel("Volatility(%)")
+
+# Adding vertical lines for specific events
+plt.axvline(pd.Timestamp('2020-02-24'), color='gray', linestyle='--', lw=2)  # COVID start
+plt.axvline(pd.Timestamp('2022-02-24'), color='orange', linestyle='--', lw=2)  # Ukraine War start
+
+# Annotations for the events
+plt.text(pd.Timestamp('2020-02-24'), plt.ylim()[1], 'COVID', horizontalalignment='center', color='gray')
+plt.text(pd.Timestamp('2022-02-24'), plt.ylim()[1], 'Ukraine War', horizontalalignment='center', color='orange')
+
+# Set x-axis limits to match the start and end dates
+plt.xlim(left=df_volatility_aapl.index[0], right=df_volatility_aapl.index[-1])
+plt.show()
+
+
+# EXPANDING WINDOW DICT
+# NOW I IMPLEMENT AN EXPANDING WINDOW MODEL FOR EVERY QUARTER
+
+expandingWindowDict = expandingWindowPredictor(uniformlyDistributedReturns)
+
+print("dimension of dataset: " + str(uniformlyDistributedReturns.shape))
+
+print("len of the expanding window dictionary: " + str(len(expandingWindowDict)))
+
+# print just the first key and value of the dictionary
+print(list(expandingWindowDict.keys())[0])
+print(expandingWindowDict[list(expandingWindowDict.keys())[0]])

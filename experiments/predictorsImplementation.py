@@ -6,34 +6,7 @@
 
 import numpy as np
 import pandas as pd
-
-
-def calculate_lambda_increment(day_number, days_in_quarter, increment_type ='linear'):
-    """
-    Calculate the lambda increment based on the increment type.
-    
-    Args:
-    - day_number: current day number in the quarter.
-    - days_in_quarter: total number of days in the quarter.
-    - increment_type: type of increment - 'linear', 'exponential', 'logarithmic', etc.
-
-    Returns:
-    - The calculated lambda increment.
-    """
-
-    # TODO: CONTROL THE CORRECTNESS OF THIS FUNCTION
-
-    if increment_type == 'linear':
-        return 1 / max((days_in_quarter - 1), 1)
-    elif increment_type == 'exponential':
-        # Example exponential increment (needs to be adjusted based on requirements)
-        return (1 - np.exp(-day_number)) / (1 - np.exp(-days_in_quarter))
-    elif increment_type == 'logarithmic':
-        # Example logarithmic increment (needs to be adjusted based on requirements)
-        return np.log1p(day_number) / np.log1p(days_in_quarter)
-    # You can add more increment types with corresponding formulas here
-    else:
-        raise ValueError("Unknown increment type")
+import matplotlib.pyplot as plt
 
 
 def empiricalCovarianceMatrix(quarterCovarianceMatrixList):
@@ -180,24 +153,260 @@ def expandingWindowPredictor(uniformlyDistributedReturns):
     return expandingWindowDict
 
 
-def hybridPredictorNewVersion(uniformlyDistributedReturns, datasetWithPercentageChange, expandingWindowDict, predictorDict, start_date, increment_type='linear'):
+def quarter_details(dataset, date):
+    """
+    Calculate the details of the quarter in which the given date falls.
+
+    Args:
+    - dataset: Pandas DataFrame with a datetime index.
+    - date: A specific datetime to calculate the quarter details for.
+
+    Returns:
+    - A tuple with the number of days in the quarter, the position of the first day, and the position of the last day.
+    """
+    quarter = (date.month - 1) // 3 + 1
+    quarter_dates = dataset.loc[dataset.index.quarter == quarter].index
+    first_day = quarter_dates[0]
+    last_day = quarter_dates[-1]
+    number_of_days = len(quarter_dates)
+    first_day_pos = dataset.index.get_loc(first_day)
+    last_day_pos = dataset.index.get_loc(last_day)
+    
+    return number_of_days, first_day_pos, last_day_pos
+
+
+def calculate_lambda_increment(day_number, days_in_quarter, increment_type ='linear'):
+    """
+    Calculate the lambda increment based on the increment type.
+    
+    Args:
+    - day_number: current day number in the quarter.
+    - days_in_quarter: total number of days in the quarter.
+    - increment_type: type of increment - 'linear', 'exponential', 'logarithmic', etc.
+
+    Returns:
+    - The calculated lambda increment.
+    """
+    if increment_type == 'linear':
+        return 1 / max((days_in_quarter - 1), 1)
+    
+    elif increment_type == 'exponential':
+        # Example exponential increment (needs to be adjusted based on requirements)
+        return (1 - np.exp(-day_number)) / (1 - np.exp(-days_in_quarter))
+    
+    elif increment_type == 'logarithmic':
+        # Example logarithmic increment (needs to be adjusted based on requirements)
+        return np.log1p(day_number) / np.log1p(days_in_quarter)
+    
+    elif increment_type == 'logistic':
+        # Set the growth rate (k) and midpoint (x_0) for the logistic function
+        k = 30
+        x_0 = days_in_quarter / 2  # The turning point is the middle of the quarter
+        
+        # Implement the logistic function based on the provided formula
+        return 1 / (1 + np.exp(-k * ((day_number - x_0) / days_in_quarter)))
+    
+    else:
+        raise ValueError("Unknown increment type")
+    
+
+def logistic_function(x, x_0 = 0.5, k = 10):
+    """
+    Logistic function to calculate the lambda parameter.
+    
+    Args:
+    - x: The normalized day within the quarter.
+    - k: The steepness of the curve.
+    - x_0: The x-value of the sigmoid's midpoint.
+
+    Returns:
+    - The lambda parameter as a value between 0 and 1.
+    """
+    return 1 / (1 + np.exp(-k * (x - x_0)))
+
+
+def linear_increment(day_number, days_in_quarter):
+    """
+    Linear increment function that maps a day number to its normalized position within the quarter.
+    
+    Args:
+    - day_number: current day number in the quarter.
+    - days_in_quarter: total number of days in the quarter.
+    
+    Returns:
+    - The normalized position of the day within the quarter, which serves as the lambda value.
+    """
+    if days_in_quarter <= 1:
+        return 0 if day_number == 0 else 1
+    return day_number / (days_in_quarter - 1)
+
+
+def exponential_increment(x, k):
+    """
+    Exponential increment function for lambda value that normalizes within the quarter.
+    
+    Args:
+    - x: Normalized day within the quarter (range from 0 to 1).
+    - k: Controls the growth rate of the function.
+    
+    Returns:
+    - The lambda value based on the exponential growth function.
+    """
+    return np.exp(k * (x - 1)) 
+
+
+def logarithmic_increment(x, k):
+    """
+    Logarithmic increment function for lambda value that normalizes within the quarter.
+    
+    Args:
+    - x: Normalized day within the quarter (range from 0 to 1).
+    - k: Controls the steepness of the logarithmic curve.
+    
+    Returns:
+    - The lambda value based on the logarithmic growth function.
+    """
+    return np.log(k * x + 1) / np.log(k + 1)
+
+
+def hybridPredictor(uniformlyDistributedReturns, datasetWithPercentageChange, expandingWindowDict, predictorDict, start_date, increment_type='linear'):
     '''
     This function implements the hybrid predictor.
     '''
+    # Ensure datetime index
+    datasetWithPercentageChange.index = pd.to_datetime(datasetWithPercentageChange.index)
+    start_date = pd.to_datetime(start_date)
+
+    # Align the dictionaries by ensuring they start on the same date
+    start = max(min(expandingWindowDict.keys()), min(predictorDict.keys()), start_date)
+    expandingWindowDict = {k: v for k, v in expandingWindowDict.items() if k >= start}
+    predictorDict = {k: v for k, v in predictorDict.items() if k >= start}
+
     hybridModelDict = {}
+    datasetWithPercentageChange = datasetWithPercentageChange[start:]
+    initialMonth = start.month
+    initialYear = start.year
+    initialQuarter = (initialMonth - 1) // 3 + 1
+    tempQuarter = initialQuarter
 
-    lambdaParam = 0  # initial value of lambda for each quarter
-    #extract the initial month from the start date
-    initialMonth = datasetWithPercentageChange.index[0].month # get the month of the first day of the test dataset
-    initialQuarter = (initialMonth-1)//3 + 1 # get the quarter of the first day of the test dataset
-    tempQuarter = initialQuarter # this is the initial quarter
+    lambdaValuesList = [] # for testing purposes, delete it
 
-    numberOfDaysInQuarter = len(datasetWithPercentageChange.loc[(datasetWithPercentageChange.index.year == start_date.year) & (datasetWithPercentageChange.index.quarter == initialQuarter)])
-    day_number = 0  # to keep track of the day number within the quarter
+    # Get the number of days in the initial quarter
+    numberOfDaysInQuarter = len(datasetWithPercentageChange.loc[(datasetWithPercentageChange.index.year == initialYear) & (datasetWithPercentageChange.index.quarter == initialQuarter)])
+
+    lambdaParam = 0  # Reset lambda at the start
+    day_number = 0
 
     for t in datasetWithPercentageChange.index:
 
-        # check if the matrix exists in every dictionary
+        if t not in expandingWindowDict or t not in predictorDict:
+            continue
+
+        ewMatrix = expandingWindowDict[t]
+        predMatrix = predictorDict[t]
+
+        quarter = (t.month-1)//3 + 1
+
+        if quarter != tempQuarter:
+            # enter here if the quarter changes
+            tempQuarter = quarter
+
+            # i recalculate the increment of the lambda parameter
+            numberOfDaysInQuarter = len(datasetWithPercentageChange.loc[(datasetWithPercentageChange.index.year == t.year) & (datasetWithPercentageChange.index.quarter == quarter)])           
+            day_number = 0
+
+        # Calculate the lambda parameter using the linear function
+        #x_value = linear_increment(day_number, numberOfDaysInQuarter)  # normalize day number to range [0, 1]
+        #lambdaParam = x_value  # apply the linear function
+
+        # Calculate the lambda parameter using the logistic function
+        lambdaParam = logistic_function(day_number / numberOfDaysInQuarter)  # apply the logistic function
+
+        lambdaValuesList.append(lambdaParam) # testing purposes, delete later
+
+        # calculate the covariance matrix using the hybrid model
+        hybrid_cov_matrix = (1 - lambdaParam) * predMatrix + lambdaParam * ewMatrix # covariance matrix at time t
+
+        # truncate every element of the covariance matrix to 6 decimals
+        hybrid_cov_matrix = hybrid_cov_matrix.round(6)
+
+        # convert the hybrid covariance matrix to a DataFrame for this specific date
+        hybridModelDict[t] = pd.DataFrame(hybrid_cov_matrix, index=uniformlyDistributedReturns.columns, columns=uniformlyDistributedReturns.columns)
+        
+        day_number += 1
+        # assert that lambda value is always between 0 and 1, if it is not print the value of lambda and the day number
+        assert 0 <= lambdaParam <= 1, f"Lambda value is not between 0 and 1: lambda = {lambdaParam}, day_number = {day_number}"
+
+    '''
+        #######################################################################################
+    # save the lambda values list in a file
+    with open("C:\\Users\\chiod\\Desktop\\MyData\\universita\\tesi\\openSourceImplementations\\cov_pred_finance\\experiments\\data\\lambdaValuesListToFix.txt", "w") as file:
+        for item in lambdaValuesList:
+            file.write("%s\n" % item)
+
+    midOfTheQuarterList = [] # for testing purposes, delete it; this list contains the number of the days that are in the middle of the quarter
+    endOfTheQuarterList = [0, 57, 119, 181, 245, 308] # for testing purposes, delete it; this list contains the number of the days that are in the end of the quarter
+
+    for i in range(1, 6):
+        midOfTheQuarterList.append((endOfTheQuarterList[i-1] + endOfTheQuarterList[i]) // 2)
+
+    print("lenght of lambda values list: ", len(lambdaValuesList)) # testing purposes, delete later
+    # plot the lambda values
+    plt.figure(figsize=(14, 6))
+    plt.plot(lambdaValuesList)
+
+    # insert in the chart a vertical dotted line that represents the middle of the quarter
+    for mid in midOfTheQuarterList:
+        plt.axvline(x=mid, color='r', linestyle='--')
+
+    for end in endOfTheQuarterList:
+        plt.axvline(x=end, color='blue', linestyle='--')
+
+    # on the y axis write exactly the numbers 0, 0.2, 0.4, 0.5, 0.6, 0.8, 1.0
+    yAxisNumbers = [0, 0.2, 0.4, 0.5, 0.6, 0.8, 1.0]
+    plt.yticks(yAxisNumbers)    
+
+    plt.title('Lambda values')
+    plt.xlabel('Day number')
+    plt.ylabel('Lambda')
+    plt.show()
+    #######################################################################################
+    '''
+    return hybridModelDict
+
+
+
+
+def hybridPredictorBackUp(uniformlyDistributedReturns, datasetWithPercentageChange, expandingWindowDict, predictorDict, start_date, increment_type='linear'):
+    '''
+    This function implements the hybrid predictor.
+    '''
+    # Ensure datetime index
+    datasetWithPercentageChange.index = pd.to_datetime(datasetWithPercentageChange.index)
+    start_date = pd.to_datetime(start_date)
+
+    # Align the dictionaries by ensuring they start on the same date
+    start = max(min(expandingWindowDict.keys()), min(predictorDict.keys()), start_date)
+    expandingWindowDict = {k: v for k, v in expandingWindowDict.items() if k >= start}
+    predictorDict = {k: v for k, v in predictorDict.items() if k >= start}
+
+    hybridModelDict = {}
+    datasetWithPercentageChange = datasetWithPercentageChange[start:]
+    initialMonth = start.month
+    initialYear = start.year
+    initialQuarter = (initialMonth - 1) // 3 + 1
+    tempQuarter = initialQuarter
+
+    lambdaValuesList = [] # for testing purposes, delete it
+
+    # Get the number of days in the initial quarter
+    numberOfDaysInQuarter = len(datasetWithPercentageChange.loc[(datasetWithPercentageChange.index.year == initialYear) & (datasetWithPercentageChange.index.quarter == initialQuarter)])
+
+    lambdaParam = 0  # Reset lambda at the start
+    day_number = 0
+
+    for t in datasetWithPercentageChange.index:
+
         if t not in expandingWindowDict or t not in predictorDict:
             continue
 
@@ -215,6 +424,9 @@ def hybridPredictorNewVersion(uniformlyDistributedReturns, datasetWithPercentage
             numberOfDaysInQuarter = len(datasetWithPercentageChange.loc[(datasetWithPercentageChange.index.year == t.year) & (datasetWithPercentageChange.index.quarter == quarter)])
             day_number = 0
 
+        lambdaValuesList.append(lambdaParam) # testing purposes, delete later
+        print("lambda value: ", lambdaParam) # testing purposes, delete later
+
         # calculate the covariance matrix using the hybrid model
         hybrid_cov_matrix = (1 - lambdaParam) * predMatrix + lambdaParam * ewMatrix # covariance matrix at time t
 
@@ -224,11 +436,48 @@ def hybridPredictorNewVersion(uniformlyDistributedReturns, datasetWithPercentage
         # convert the hybrid covariance matrix to a DataFrame for this specific date
         hybridModelDict[t] = pd.DataFrame(hybrid_cov_matrix, index=uniformlyDistributedReturns.columns, columns=uniformlyDistributedReturns.columns)
 
-        if day_number == numberOfDaysInQuarter - 1:
-            lambdaParam = 1
-        else:
+        if day_number < numberOfDaysInQuarter - 1:
             lambdaIncrement = calculate_lambda_increment(day_number, numberOfDaysInQuarter, increment_type)
-            lambdaParam += lambdaIncrement
-        day_number += 1
+            lambdaParam = min(lambdaParam + lambdaIncrement, 1)
+        else:
+            lambdaParam = 1  # Ensure lambda is exactly 1 on the last day
 
+        day_number += 1
+        # assert that lambda value is always between 0 and 1, if it is not print the value of lambda and the day number
+        assert 0 <= lambdaParam <= 1, f"Lambda value is not between 0 and 1: lambda = {lambdaParam}, day_number = {day_number}"
+
+    #######################################################################################
+
+    # save the lambda values list in a file
+    with open("C:\\Users\\chiod\\Desktop\\MyData\\universita\\tesi\\openSourceImplementations\\cov_pred_finance\\experiments\\data\\lambdaValuesListBackUp.txt", "w") as file:
+        for item in lambdaValuesList:
+            file.write("%s\n" % item)
+
+    midOfTheQuarterList = [] # for testing purposes, delete it; this list contains the number of the days that are in the middle of the quarter
+    endOfTheQuarterList = [0, 57, 119, 181, 245, 308] # for testing purposes, delete it; this list contains the number of the days that are in the end of the quarter
+
+    for i in range(1, 6):
+        midOfTheQuarterList.append((endOfTheQuarterList[i-1] + endOfTheQuarterList[i]) // 2)
+
+    print("lenght of lambda values list: ", len(lambdaValuesList)) # testing purposes, delete later
+    # plot the lambda values
+    plt.figure(figsize=(14, 6))
+    plt.plot(lambdaValuesList)
+
+    # insert in the chart a vertical dotted line that represents the middle of the quarter
+    for mid in midOfTheQuarterList:
+        plt.axvline(x=mid, color='r', linestyle='--')
+
+    for end in endOfTheQuarterList:
+        plt.axvline(x=end, color='blue', linestyle='--')
+
+    # on the y axis write exactly the numbers 0, 0.2, 0.4, 0.5, 0.6, 0.8, 1.0
+    yAxisNumbers = [0, 0.2, 0.4, 0.5, 0.6, 0.8, 1.0]
+    plt.yticks(yAxisNumbers)    
+
+    plt.title('Lambda values')
+    plt.xlabel('Day number')
+    plt.ylabel('Lambda')
+    plt.show()
+    #######################################################################################
     return hybridModelDict

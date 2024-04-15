@@ -25,3 +25,17 @@ with open("experiments\mgarch_predictors_from_R\stocks\mgarch_stocks_adj.csv", "
 
     # The highest value is 0.010795658061972701 and the lowest value is -2.7552137504859803e-05
 
+
+# now plot a logistic and a linear function in the same plot
+import matplotlib.pyplot as plt
+import numpy as np
+
+x = np.linspace(-10, 10, 100)
+y_logistic = 1 / (1 + np.exp(-x))
+y_linear = x
+
+plt.plot(x, y_logistic, label='Logistic')
+plt.plot(x, y_linear, label='Linear')
+
+plt.legend()
+plt.show()

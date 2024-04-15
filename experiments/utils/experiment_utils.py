@@ -329,23 +329,11 @@ def log_likelihood(returns, Sigmas, means=None, scale=1):
     """
     if means is None:
         means = np.zeros_like(returns)
-        print("means shape: ", means.shape)
 
     T, n = returns.shape
-    print("T: ", T)
-    print("n: ", n)
 
     returns = returns.reshape(T, n, 1)
     means = means.reshape(T, n, 1)
-
-    print("returns shape: ", returns.shape)
-    print("means shape: ", means.shape)
-
-    # print the first 2 terms of the returns and means
-    print("returns[0]: ", returns[0])
-    print("returns[1]: ", returns[1])
-    print("means[0]: ", means[0])
-    print("means[1]: ", means[1])
 
     returns = returns * scale
     means = means * scale
