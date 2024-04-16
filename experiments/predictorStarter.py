@@ -28,6 +28,172 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
+
+# this function is used to plot the performance of the RW predictor in terms of regret and log-likelihood
+
+def plotLogLikelihoodPerformancePredictor(hyperParameterValues, hyperParameterMeanlogLikelihoodValues, prescientMeanlogLikelihoodValue, predictor_name, hyperParameterName):
+    '''
+    plot the chart of the mean log-likelihood value for the given 
+    '''
+    hyperParameterMinValuesLogLikelihood = [] # this list will contain the hyperParameter values that have the max log-likelihood value
+    plt.figure()
+    plt.plot(hyperParameterValues, hyperParameterMeanlogLikelihoodValues)
+    plt.title(f"Mean log-likelihood values of the {hyperParameterName} predictor")
+    plt.xlabel(f"{predictor_name} {hyperParameterName}")
+    plt.ylabel("Mean log-likelihood")
+    plt.title(f"Mean log-likelihood values of the {hyperParameterName} predictor")
+
+    # show also the loglikelihood value of the prescient predictor
+    plt.axhline(y=prescientMeanlogLikelihoodValue, color='r', linestyle='-')
+    plt.legend([f"{predictor_name} {hyperParameterName}", "Prescient Predictor"])
+
+    # find the rw values that have the max log-likelihood value
+    for j in range(len(hyperParameterMeanlogLikelihoodValues)):
+        if hyperParameterMeanlogLikelihoodValues[j] == max(hyperParameterMeanlogLikelihoodValues):
+            hyperParameterMinValuesLogLikelihood.append(hyperParameterValues[j])
+
+    # these points show the interval of rw values that have the maximum log-likelihood value
+    highlightsPoint1 = hyperParameterMinValuesLogLikelihood[0]
+    plt.scatter(highlightsPoint1, max(hyperParameterMeanlogLikelihoodValues), color='r')
+    #plt.text(highlightsPoint1, max(rwMeanlogLikelihoodValues), f' M: {highlightsPoint1:.1f}\n Log-likelihood: {max(rwMeanlogLikelihoodValues):.4f}', fontsize=9, color='red', ha='center', va='bottom')
+
+    highlightsPoint2 = hyperParameterMinValuesLogLikelihood[-1]
+    plt.scatter(highlightsPoint2, max(hyperParameterMeanlogLikelihoodValues), color='r')
+    #plt.text(highlightsPoint2, max(rwMeanlogLikelihoodValues), f' M: {highlightsPoint2:.1f}\n Log-likelihood: {max(rwMeanlogLikelihoodValues):.4f}', fontsize=9, color='red', ha='center', va='bottom')
+    
+    # find the y value coordinate corresponding to the highlightPoint1LogLikelihood and highlightPoint2LogLikelihood
+    highlightsPoint1Index = hyperParameterValues.index(highlightsPoint1)
+    highlightsPoint2Index = hyperParameterValues.index(highlightsPoint2)
+
+    highlightsPoint1Y = hyperParameterMeanlogLikelihoodValues[highlightsPoint1Index]
+    highlightsPoint2Y = hyperParameterMeanlogLikelihoodValues[highlightsPoint2Index]
+
+    print(f"{hyperParameterName}: {highlightsPoint1:.4f}\n Log-likelihood: {highlightsPoint1Y:.4f}")
+    print(f"{hyperParameterName}: {highlightsPoint2:.4f}\n Log-likelihood: {highlightsPoint2Y:.4f}")
+
+    # set the x-axis limits
+    plt.xlim(left = hyperParameterValues[0], right = hyperParameterValues[-1])
+
+    plt.show()
+
+
+def plotRegretPerformancePredictor(hyperParameterValues, hyperParameterMeanRegretValues, predictor_name, hyperParameterName):
+    '''
+    plot the chart of the mean regret values of a single predictor
+    '''
+
+    hyperParameterMinValuesRegret = [] # this list will contain the hyperParameter values that have the min regret value
+    plt.plot(hyperParameterValues, hyperParameterMeanRegretValues)
+    plt.title(f"Mean regret values of the {predictor_name} predictor")
+    plt.xlabel(f"{predictor_name} {hyperParameterName}")
+    plt.ylabel("Mean regret")
+    plt.title(f"Mean regret values of the {predictor_name} predictor")
+
+    # find the rw values that have the min regret value
+    for i in range(len(hyperParameterMeanRegretValues)):
+        if hyperParameterMeanRegretValues[i] == min(hyperParameterMeanRegretValues):
+            hyperParameterMinValuesRegret.append(hyperParameterValues[i])
+
+    # these points show the interval of rw values that have the minimum regret value
+    highlightsPoint1 = hyperParameterMinValuesRegret[0]
+    plt.scatter(highlightsPoint1, min(hyperParameterMeanRegretValues), color='r')
+    #plt.text(highlightsPoint1, min(rwMeanRegretValues), f' rwMemory: {highlightsPoint1:.1f} \n Regret: {min(rwMeanRegretValues):.4f}', fontsize=9, color='red', ha='center', va='bottom')
+
+    highlightsPoint2 = hyperParameterMinValuesRegret[-1]
+    plt.scatter(highlightsPoint2, min(hyperParameterMeanRegretValues), color='r')
+    #plt.text(highlightsPoint2, min(rwMeanRegretValues), f' rwMemory: {highlightsPoint2:.1f} \n Regret: {min(rwMeanRegretValues):.4f}', fontsize=9, color='red', ha='center', va='bottom')
+    
+    # find the y value coordinate corresponding to the highlightPoint1Regret and highlightPoint2Regret
+    highlightsPoint1Index = hyperParameterValues.index(highlightsPoint1)
+    highlightsPoint2Index = hyperParameterValues.index(highlightsPoint2)
+
+    highlightsPoint1Y = hyperParameterMeanRegretValues[highlightsPoint1Index]
+    highlightsPoint2Y = hyperParameterMeanRegretValues[highlightsPoint2Index]
+
+    print(f"{hyperParameterName}: {highlightsPoint1:.4f}\n Regret: {highlightsPoint1Y:.4f}")
+    print(f"{hyperParameterName}: {highlightsPoint2:.4f}\n Regret: {highlightsPoint2Y:.4f}")
+
+    # set the x-axis limits
+    plt.xlim(left = hyperParameterValues[0], right = hyperParameterValues[-1])
+
+    plt.show()
+
+
+def plotPerformancePredictor(predictorValues, predictorMeanlogLikelihoodValues, prescientMeanlogLikelihoodValue, predictorMeanRegretValues, predictor_name, hyperParameterName):
+    '''
+    plotting the results of the a predictor expressed in terms of loglikelihood and regret on a single chart
+    '''
+
+    fig, ax1 = plt.subplots(figsize=(10, 6))
+
+    # Plot the mean log-likelihood values for the predictor
+    color = 'tab:blue'
+    ax1.set_xlabel(f'{hyperParameterName} values')
+    ax1.set_ylabel('Mean log-likelihood', color=color)
+    ax1.plot(predictorValues, predictorMeanlogLikelihoodValues, color=color, label=f'Loglikelihood {predictor_name}')
+    ax1.tick_params(axis='y', labelcolor=color)
+
+    # Plot the loglikelihood value of the prescient predictor
+    ax1.axhline(y=prescientMeanlogLikelihoodValue, color='tab:green', linestyle='-', label='Loglikelihood PRESCIENT')
+
+    # Highlight the maximum log-likelihood points
+    max_log_likelihood = max(predictorMeanlogLikelihoodValues)
+    max_points = [beta for beta, value in zip(predictorValues, predictorMeanlogLikelihoodValues) if value == max_log_likelihood]
+
+    # take just the first and last element of the list
+    max_points = [max_points[0], max_points[-1]]
+
+    # scatter the points by writing the memory value and the loglikelihood value on the chart
+    for point in max_points:
+        ax1.scatter(point, max_log_likelihood, color='green')
+        plt.text(point, max_log_likelihood, f' x: {point:.0f}\n y: {max_log_likelihood:.1f}', fontsize=9, color='green', ha='center', va='bottom')
+
+    # Add a second y-axis for the regret values
+    ax2 = ax1.twinx()  
+    color = 'tab:red'
+    ax2.set_ylabel('Mean regret', color=color)  
+    ax2.plot(predictorValues, predictorMeanRegretValues, color=color, label=f'Regret {predictor_name}')
+    ax2.tick_params(axis='y', labelcolor=color)
+
+    # Highlight the minimum regret points
+    min_regret = min(predictorMeanRegretValues)
+    min_points = [beta for beta, value in zip(predictorValues, predictorMeanRegretValues) if value == min_regret]
+
+    # take just the first and last element of the list
+    min_points = [min_points[0], min_points[-1]]
+
+    # scatter the points by writing the beta value and the regret value on the chart
+    for point in min_points:
+        ax2.scatter(point, min_regret, color='red')
+        plt.text(point, min_regret, f' x: {point:.0f}\n y: {min_regret:.1f}', fontsize=9, color='red', ha='center', va='bottom')
+
+    # print also the y value of the max_points and min_points
+    max_pointsIndex = [predictorValues.index(point) for point in max_points]
+    min_pointsIndex = [predictorValues.index(point) for point in min_points]
+
+    max_pointsY = [predictorMeanlogLikelihoodValues[index] for index in max_pointsIndex]
+    min_pointsY = [predictorMeanRegretValues[index] for index in min_pointsIndex]
+
+    print("max_pointsX: " + str(max_points))
+    print("max_pointsY: " + str(max_pointsY))
+    print("min_pointsX: " + str(min_points))
+    print("min_pointsY: " + str(min_pointsY))
+
+    # Create the legend, which combines both axes
+    lines, labels = ax1.get_legend_handles_labels()
+    lines2, labels2 = ax2.get_legend_handles_labels()
+    ax2.legend(lines + lines2, labels + labels2, loc='upper right')
+
+    # Add title
+    plt.title(f"Performance of {predictor_name} for different {hyperParameterName} values")
+
+    # Set the x-axis limits
+    ax1.set_xlim(left=predictorValues[0], right=predictorValues[-1])
+
+    fig.tight_layout()  # to ensure the right y-label is not slightly clipped
+    plt.show()
+
+
 # code for plotting and compare inside a unique chart prices and volatilities for mgarch predictions
 
 def plot_prices_volatilities_for_predictor(stock_prices, real_volatility, real_volatility_startDate, real_volatility_endDate, predictorVolatility, asset_name, predictor_name):
