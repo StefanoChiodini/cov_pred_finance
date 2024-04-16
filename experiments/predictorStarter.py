@@ -328,7 +328,6 @@ else:
 
 stocksPrices = pd.read_csv('data/' + str(numberOfAssets) + 'StocksPortfolios.csv', index_col=0, parse_dates=True)
 stocksPercentageChangeReturn = pd.read_csv('data/' + str(numberOfAssets) + 'StocksPortfolioPercentageChange.csv', index_col=0, parse_dates=True)
-uniformlyDistributedReturns = stocksPercentageChangeReturn.copy() # this is a copy of the original dataset returns; i will use this to make it non-uniformly distributed
 
 # Risk-free rate
 FF = pd.read_csv('data/ff5.csv', index_col=0, parse_dates=True)
@@ -390,14 +389,20 @@ ticker_to_permco = {v: k for k, v in permco_to_ticker.items()}
 columns = [ticker_to_permco.get(col, col) for col in stocksPercentageChangeReturn.columns]
 stocksPercentageChangeReturn.columns = columns 
 
-# Repeat for uniformlyDistributedReturns
-
-uniformlyDistributedReturns.columns = columns
-
 # repeat for validation and test dataset
 trainingDataWithPercentageChange.columns = columns
 validationDataWithPercentageChange.columns = columns
 testDataWithPercentageChange.columns = columns
+
+# now define the start date and end date for every dataset
+startingTrainingDate = trainingDataWithPercentageChange.index[0].strftime("%Y-%m-%d")
+endingTrainingDate = trainingDataWithPercentageChange.index[-1].strftime("%Y-%m-%d")
+
+startingValidationDate = validationDataWithPercentageChange.index[0].strftime("%Y-%m-%d")
+endingValidationDate = validationDataWithPercentageChange.index[-1].strftime("%Y-%m-%d")
+
+startingTestDate = testDataWithPercentageChange.index[0].strftime("%Y-%m-%d")
+endingTestDate = testDataWithPercentageChange.index[-1].strftime("%Y-%m-%d")
 
 # Plot the returns of the stocks with highlights and annotations
 plt.figure(figsize=(14, 7))
@@ -450,7 +455,7 @@ plt.show()
 # The prescient predictor will always use the original dataset, so it will be uniformly distributed; this is because the prescient predictor is used to compare the other predictors
 # and we need to have a measure of the real covariance matrix; so this can't be used with the non-uniformly distributed dataset
 
-prescientDict = originalPrescientPredictor(uniformlyDistributedReturns)
+prescientDict = originalPrescientPredictor(stocksPercentageChangeReturn)
 
     
 # print the first 5 elements of the dictionary
@@ -501,9 +506,9 @@ df_volatility_aapl, df_volatility_ibm, df_volatility_mcd, volatility_dict_aapl, 
 # EXPANDING WINDOW DICT
 # NOW I IMPLEMENT AN EXPANDING WINDOW MODEL FOR EVERY QUARTER
 
-expandingWindowDict = expandingWindowPredictor(uniformlyDistributedReturns)
+expandingWindowDict = expandingWindowPredictor(stocksPercentageChangeReturn)
 
-print("dimension of dataset: " + str(uniformlyDistributedReturns.shape))
+print("dimension of dataset: " + str(stocksPercentageChangeReturn.shape))
 
 print("len of the expanding window dictionary: " + str(len(expandingWindowDict)))
 

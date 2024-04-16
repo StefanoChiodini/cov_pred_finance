@@ -151,44 +151,9 @@ def expandingWindowPredictor(uniformlyDistributedReturns):
         expandingWindowDict[t] = pd.DataFrame(ew_cov_matrix, index=uniformlyDistributedReturns.columns, columns=uniformlyDistributedReturns.columns)
 
     return expandingWindowDict
-
-
-def calculate_lambda_increment(day_number, days_in_quarter, increment_type ='linear'):
-    """
-    Calculate the lambda increment based on the increment type.
-    
-    Args:
-    - day_number: current day number in the quarter.
-    - days_in_quarter: total number of days in the quarter.
-    - increment_type: type of increment - 'linear', 'exponential', 'logarithmic', etc.
-
-    Returns:
-    - The calculated lambda increment.
-    """
-    if increment_type == 'linear':
-        return 1 / max((days_in_quarter - 1), 1)
-    
-    elif increment_type == 'exponential':
-        # Example exponential increment (needs to be adjusted based on requirements)
-        return (1 - np.exp(-day_number)) / (1 - np.exp(-days_in_quarter))
-    
-    elif increment_type == 'logarithmic':
-        # Example logarithmic increment (needs to be adjusted based on requirements)
-        return np.log1p(day_number) / np.log1p(days_in_quarter)
-    
-    elif increment_type == 'logistic':
-        # Set the growth rate (k) and midpoint (x_0) for the logistic function
-        k = 30
-        x_0 = days_in_quarter / 2  # The turning point is the middle of the quarter
-        
-        # Implement the logistic function based on the provided formula
-        return 1 / (1 + np.exp(-k * ((day_number - x_0) / days_in_quarter)))
-    
-    else:
-        raise ValueError("Unknown increment type")
     
 
-def logistic_function(x, x_0 = 0.5, k = 10):
+def logistic_function(x, k = 10, x_0 = 0.5):
     """
     Logistic function to calculate the lambda parameter.
     
@@ -247,7 +212,7 @@ def logarithmic_increment(x, k):
     return np.log(k * x + 1) / np.log(k + 1)
 
 
-def hybridPredictor(uniformlyDistributedReturns, datasetWithPercentageChange, expandingWindowDict, predictorDict, start_date, increment_type='linear'):
+def hybridPredictor(uniformlyDistributedReturns, datasetWithPercentageChange, expandingWindowDict, predictorDict, start_date, increment_type='linear', k = 10):
     '''
     This function implements the hybrid predictor.
     '''
@@ -294,11 +259,11 @@ def hybridPredictor(uniformlyDistributedReturns, datasetWithPercentageChange, ex
             day_number = 0
 
         # Calculate the lambda parameter using the linear function
-        #x_value = linear_increment(day_number, numberOfDaysInQuarter)  # normalize day number to range [0, 1]
-        #lambdaParam = x_value  # apply the linear function
+        x_value = linear_increment(day_number, numberOfDaysInQuarter)  # normalize day number to range [0, 1]
+        lambdaParam = x_value  # apply the linear function
 
         # Calculate the lambda parameter using the logistic function
-        lambdaParam = logistic_function(day_number / numberOfDaysInQuarter)  # apply the logistic function
+        #lambdaParam = logistic_function(day_number / numberOfDaysInQuarter)  # apply the logistic function
 
         lambdaValuesList.append(lambdaParam) # testing purposes, delete later
 
@@ -316,7 +281,7 @@ def hybridPredictor(uniformlyDistributedReturns, datasetWithPercentageChange, ex
         assert 0 <= lambdaParam <= 1, f"Lambda value is not between 0 and 1: lambda = {lambdaParam}, day_number = {day_number}"
 
     '''
-        #######################################################################################
+    #######################################################################################
     # save the lambda values list in a file
     with open("C:\\Users\\chiod\\Desktop\\MyData\\universita\\tesi\\openSourceImplementations\\cov_pred_finance\\experiments\\data\\lambdaValuesListToFix.txt", "w") as file:
         for item in lambdaValuesList:
