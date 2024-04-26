@@ -82,6 +82,7 @@ def RMSE(datasetWithPercentageChange, predictedCovariancesDict, realCovariancesD
             residualsSum = sum(residuals) # sum of the residuals
             RMSE = np.sqrt(residualsSum / N) # calculate the RMSE
             RMSEs[yesterday] = RMSE # append the RMSE to the list of RMSEs
+
             # reset the variables
             tempQuarter = quarter
             N = len(datasetWithPercentageChange.loc[(datasetWithPercentageChange.index.year == t.year) & (datasetWithPercentageChange.index.quarter == quarter)]) # get the number of days in the quarter
@@ -126,7 +127,7 @@ def RMSEforSingleVolatility(datasetWithPercentageChange, predictedVolatilityDict
     volatilityRMSEsDict = {} # this is the dict of RMSEs(one value for each quarter)
 
     # take the inital month from the start date
-    initialMonth = startDate.month
+    initialMonth = datasetWithPercentageChange.index[0].month
     initialQuarter = (initialMonth - 1) // 3 + 1
     tempQuarter = initialQuarter
 
@@ -157,7 +158,6 @@ def RMSEforSingleVolatility(datasetWithPercentageChange, predictedVolatilityDict
             volatilityResiduals = [] # reset the residuals list
 
         predictedAssetVolatility = predictedVolatilityDict[t] # get the predicted volatility at time t
-
         realAssetVolatility = realVolatilityDict[t] # get the realized volatility at time t
 
         # calculate the residual
@@ -179,9 +179,10 @@ def RMSEforSingleVolatility(datasetWithPercentageChange, predictedVolatilityDict
         if volatilityRMSEsDict[key] == 0:
             del volatilityRMSEsDict[key]
 
-    # adjust the unit of measure of rmse
-    for key in volatilityRMSEsDict:
-        volatilityRMSEsDict[key] = np.sqrt(volatilityRMSEsDict[key])
+    # TODO: CHECK IF I HAD TO APPLY THE SQUARE ROOT TO ADJUST THE UNIT OF MEASURE
+    # IN THEORY I HAVE ALREADY APPLIED THE SQUARE ROOT SO THIS MUST NOT BE DONE HERE
+    #for key in volatilityRMSEsDict:
+    #    volatilityRMSEsDict[key] = np.sqrt(volatilityRMSEsDict[key])
 
     return volatilityRMSEsDict
 

@@ -110,8 +110,88 @@ def RMSEforSingleAssets(testDataWithPercentageChange, volatility_dict_aapl_filte
     print(f"max: {max_rmse_mcd:.10f}")
 
 
-def predictorLogLikelihood():
+def predictorLogLikelihood(returnsDataset, predictors, names):
     '''
     this function calculates the loglikelihood of a predictor
     '''
-    pass
+    daily_log_likelihoods = {}  # Create an empty dictionary to store the daily log-likelihoods for each predictor
+
+    for i, predictorDict in enumerate(predictors):
+
+        returns_temp = returnsDataset.loc[pd.Series(predictorDict).index].values[1:]
+        times = pd.Series(predictorDict).index[1:]
+        Sigmas_temp = np.stack([predictorDict[t].values for t in predictorDict.keys()])[:-1]       
+        daily_log_likelihoods[names[i]] = pd.Series(log_likelihood(returns_temp, Sigmas_temp), index=times)
+
+    # Iterate through each predictor in the log_likelihoods dictionary
+    for name in daily_log_likelihoods.keys():
+        if name == 'PRESCIENT':
+            # Resample by quarter, take the mean, and plot with specific color and label
+            daily_log_likelihoods[name].resample("Q").mean().plot(label=name, c="k")
+        else:
+            # Resample by quarter, take the mean, and plot with default settings
+            daily_log_likelihoods[name].resample("Q").mean().plot(label=name)
+
+    plt.xlabel('Time(quarter)')  # Set the x-axis label
+    plt.ylabel('Log Likelihood')  # Set the y-axis label
+    plt.title('Quarterly Mean Log Likelihood by Predictor')  # Set the title of the plot
+    plt.legend()  # Show the legend to identify each predictor
+    plt.show()  # Display the plot
+
+    # copy the log-likelihoods dictionary
+    daily_log_likelihoods_copy = daily_log_likelihoods.copy()
+
+    # do the same thing for log-likelihoods dictionary
+    for name in daily_log_likelihoods_copy:
+        logLikelihood = daily_log_likelihoods_copy[name].resample("Q").mean()
+
+        print("logLikelihood length: ", len(logLikelihood))
+        print("logLikelihood shape: ", logLikelihood.shape)
+        logLikelihoodMetrics = (np.mean(logLikelihood).round(1), np.std(logLikelihood).round(1), np.max(logLikelihood).round(1))
+
+        print("\n")
+        print(f"meanLoglikelihood{name}: {logLikelihoodMetrics[0]:.3f}")
+        print(f"stdLoglikelihood{name}: {logLikelihoodMetrics[1]:.3f}")
+        print(f"maxLoglikelihood{name}: {logLikelihoodMetrics[2]:.3f}")
+
+    return daily_log_likelihoods
+
+
+def predictorRegret(daily_log_likelihoods, names):
+    '''
+    this function calculates the regret of a predictor
+    '''
+    daily_regrets = {}
+    predictorMeanRegretValues = []
+
+    for name in daily_log_likelihoods:
+        daily_regrets[name] =  daily_log_likelihoods["PRESCIENT"] - daily_log_likelihoods[name]
+
+    fig, ax = plt.subplots(1, 1, figsize=(10, 5))
+    for name in names:
+        if name == 'PRESCIENT':
+            pass
+        else:
+            daily_regrets[name].resample("Q").mean().plot(label=name)
+    plt.legend(bbox_to_anchor=(1, 1.1), loc='center right', ncols=4, labels=names[:-1], scatterpoints=1, markerscale=5);
+    plt.xlabel('Time(quarter)')  # Set the x-axis label
+    plt.ylabel('regret')
+    plt.title("Regret")
+
+    for name in daily_regrets:
+        if name != "PRESCIENT":
+
+            #Each data point in the regret series now represents the average regret for a respective quarter. If the original series spans multiple years, then the number of data points in regret will be the number of quarters in that time frame.
+            quarterly_regret = daily_regrets[name].resample("Q").mean() #it resamples the regret Series to a quarterly frequency, This gives the average regret for each quarter rather than daily regret values  
+            # so the regret variable is a series of average regret for each quarter
+            
+            regretMetrics = (np.mean(quarterly_regret).round(1), np.std(quarterly_regret).round(1), np.max(quarterly_regret).round(1))
+            # the round(1) function to each of these metrics, which rounds the result to one decimal place,
+
+            # save the regret mean values to plot a chart
+            predictorMeanRegretValues.append(regretMetrics[0])
+
+    print("\n")
+    print(f"meanRegret: {regretMetrics[0]:.3f}")
+    print(f"stdRegret: {regretMetrics[1]:.3f}")
+    print(f"maxRegret: {regretMetrics[2]:.3f}")
