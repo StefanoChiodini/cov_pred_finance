@@ -406,7 +406,8 @@ endingTestDate = testDataWithPercentageChange.index[-1].strftime("%Y-%m-%d")
 
 # Plot the returns of the stocks with highlights and annotations
 plt.figure(figsize=(14, 7))
-plt.plot(stocksPrices)
+# plot the stock prices of just the test dataset
+plt.plot(stocksPrices.loc[startingTestDate:endingTestDate])
 plt.legend(["AAPL", "IBM", "MCD"])
 plt.title("Returns of the stocks")
 plt.xlabel("Time(days)")
