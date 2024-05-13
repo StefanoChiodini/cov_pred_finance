@@ -259,11 +259,14 @@ def hybridPredictor(uniformlyDistributedReturns, datasetWithPercentageChange, ex
             day_number = 0
 
         # Calculate the lambda parameter using the linear function
-        x_value = linear_increment(day_number, numberOfDaysInQuarter)  # normalize day number to range [0, 1]
-        lambdaParam = x_value  # apply the linear function
+        #x_value = linear_increment(day_number, numberOfDaysInQuarter)  # normalize day number to range [0, 1]
+        #lambdaParam = x_value  # apply the linear function
 
         # Calculate the lambda parameter using the logistic function
-        #lambdaParam = logistic_function(day_number / numberOfDaysInQuarter)  # apply the logistic function
+        lambdaParam = logistic_function(day_number / numberOfDaysInQuarter, k)
+
+        # Calculate the lambda parameter using the exponential function
+        #lambdaParam = exponential_increment(day_number / numberOfDaysInQuarter, k)  # apply the exponential function
 
         lambdaValuesList.append(lambdaParam) # testing purposes, delete later
 
