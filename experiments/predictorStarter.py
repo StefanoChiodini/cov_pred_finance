@@ -1,6 +1,8 @@
 import pandas as pd
 from pandas.tseries.offsets import BDay
 
+import csv
+
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
@@ -322,7 +324,9 @@ def plot_volatility(predictorDict, start_date, end_date, predictor_name):
     this function is for plotting assets volatilities
     '''
 
-    predictor_volatilities = {} # this dictionary will contain the volatilities of the 3 assets for every day with the same key of the predictorDict dictionary(the timestamp)
+    # AAPL -> 7, IBM -> 20990, MCD -> 21177, KO -> 20468, PEP -> 21384, JNJ -> 21018, ORCL -> 8045, PFE -> 21394, WMT -> 21880
+
+    predictor_volatilities = {} # this dictionary will contain the volatilities of the every assets for every day with the same key of the predictorDict dictionary(the timestamp)
     for date, cov_matrix in predictorDict.items():
         volatilities = np.sqrt(np.diag(cov_matrix.values))
         predictor_volatilities[date] = pd.DataFrame(data = volatilities, index = cov_matrix.index, columns = ["volatility"])
@@ -332,17 +336,35 @@ def plot_volatility(predictorDict, start_date, end_date, predictor_name):
     # filter the dictionary between the start and end date
     predictor_volatilities = {k: v for k, v in predictor_volatilities.items() if k >= start_date and k <= end_date}
 
-    # now separate the real volatilities of the 3 assets in 3 different dataframes
-    volatility_dict_aapl, volatility_dict_ibm, volatility_dict_mcd = {}, {}, {}
+    # now separate the real volatilities of every assets in single different dataframes
+    volatility_dict_aapl, volatility_dict_ibm, volatility_dict_mcd, volatility_dict_ko, volatility_dict_pep, volatility_dict_jnj, volatility_dict_orcl, volatility_dict_pfe, volatility_dict_wmt = {}, {}, {}, {}, {}, {}, {}, {}, {}
+
 
     for date, volatilities in predictor_volatilities.items():
         volatility_dict_aapl[date] = volatilities.loc[7]["volatility"] # 7 is the PERMCO code of AAPL
         volatility_dict_ibm[date] = volatilities.loc[20990]["volatility"] # 20990 is the PERMCO code of IBM
         volatility_dict_mcd[date] = volatilities.loc[21177]["volatility"] # 21177 is the PERMCO code of MCD
 
+        if numberOfAssets == 6:
+            volatility_dict_ko[date] = volatilities.loc[20468]["volatility"]
+            volatility_dict_pep[date] = volatilities.loc[21384]["volatility"]
+            volatility_dict_jnj[date] = volatilities.loc[21018]["volatility"]
+        
+        if numberOfAssets == 9:
+            volatility_dict_ko[date] = volatilities.loc[20468]["volatility"]
+            volatility_dict_pep[date] = volatilities.loc[21384]["volatility"]
+            volatility_dict_jnj[date] = volatilities.loc[21018]["volatility"]
+            volatility_dict_orcl[date] = volatilities.loc[8045]["volatility"]
+            volatility_dict_pfe[date] = volatilities.loc[21394]["volatility"]
+            volatility_dict_wmt[date] = volatilities.loc[21880]["volatility"]
+
+
     # check if dictionaries are empty or not
     if not volatility_dict_aapl or not volatility_dict_ibm or not volatility_dict_mcd:
         raise ValueError("No volatilities found for the specified dates.")
+    
+    # initialize the dataframes here
+    df_volatility_aapl, df_volatility_ibm, df_volatility_mcd, df_volatility_ko, df_volatility_pep, df_volatility_jnj, df_volatility_orcl, df_volatility_pfe, df_volatility_wmt = None, None, None, None, None, None, None, None, None
     
     # Convert the dictionaries to DataFrames for easier manipulation and plotting
     df_volatility_aapl = pd.DataFrame(list(volatility_dict_aapl.items()), columns=['Date', 'AAPL Volatility'])
@@ -353,6 +375,30 @@ def plot_volatility(predictorDict, start_date, end_date, predictor_name):
     df_volatility_aapl.set_index('Date', inplace=True)
     df_volatility_ibm.set_index('Date', inplace=True)
     df_volatility_mcd.set_index('Date', inplace=True)
+
+    if numberOfAssets == 6:
+        df_volatility_ko = pd.DataFrame(list(volatility_dict_ko.items()), columns=['Date', 'KO Volatility'])
+        df_volatility_pep = pd.DataFrame(list(volatility_dict_pep.items()), columns=['Date', 'PEP Volatility'])
+        df_volatility_jnj = pd.DataFrame(list(volatility_dict_jnj.items()), columns=['Date', 'JNJ Volatility'])
+
+        df_volatility_ko.set_index('Date', inplace=True)
+        df_volatility_pep.set_index('Date', inplace=True)
+        df_volatility_jnj.set_index('Date', inplace=True)
+
+    if numberOfAssets == 9:
+        df_volatility_ko = pd.DataFrame(list(volatility_dict_ko.items()), columns=['Date', 'KO Volatility'])
+        df_volatility_pep = pd.DataFrame(list(volatility_dict_pep.items()), columns=['Date', 'PEP Volatility'])
+        df_volatility_jnj = pd.DataFrame(list(volatility_dict_jnj.items()), columns=['Date', 'JNJ Volatility'])
+        df_volatility_orcl = pd.DataFrame(list(volatility_dict_orcl.items()), columns=['Date', 'ORCL Volatility'])
+        df_volatility_pfe = pd.DataFrame(list(volatility_dict_pfe.items()), columns=['Date', 'PFE Volatility'])
+        df_volatility_wmt = pd.DataFrame(list(volatility_dict_wmt.items()), columns=['Date', 'WMT Volatility'])
+
+        df_volatility_ko.set_index('Date', inplace=True)
+        df_volatility_pep.set_index('Date', inplace=True)
+        df_volatility_jnj.set_index('Date', inplace=True)
+        df_volatility_orcl.set_index('Date', inplace=True)
+        df_volatility_pfe.set_index('Date', inplace=True)
+        df_volatility_wmt.set_index('Date', inplace=True)
 
     # Plot the real volatilities of the 3 assets
     plt.figure(figsize=(18, 11))
@@ -378,7 +424,7 @@ def plot_volatility(predictorDict, start_date, end_date, predictor_name):
     # Set x-axis between the first and last day of a dataframe for example aapl dataframe
     plt.xlim(left=df_volatility_aapl.index[0], right=df_volatility_aapl.index[-1])
 
-    return df_volatility_aapl, df_volatility_ibm, df_volatility_mcd, volatility_dict_aapl, volatility_dict_ibm, volatility_dict_mcd
+    return df_volatility_aapl, df_volatility_ibm, df_volatility_mcd, df_volatility_ko, df_volatility_pep, df_volatility_jnj, df_volatility_orcl, df_volatility_pfe, df_volatility_wmt, volatility_dict_aapl, volatility_dict_ibm, volatility_dict_mcd, volatility_dict_ko, volatility_dict_pep, volatility_dict_jnj, volatility_dict_orcl, volatility_dict_pfe, volatility_dict_wmt 
 
 
 sns.set()
@@ -413,10 +459,15 @@ rf_rate = pd.DataFrame(FF.loc[:,"RF"])
 rf_rate.index = pd.to_datetime(rf_rate.index, format='%Y%m%d')
 
 # i have 13 years of trading data; 3273 days; now i will split the dataset into 70% training, 20% validation and 10% test
-
+'''
 total_days = len(stocksPrices)
 date_70_percent = stocksPrices.index[int(total_days * 0.7)]
 date_90_percent = stocksPrices.index[int(total_days * 0.9)]
+'''
+
+# Hardcoded split dates based on your output
+date_70_percent = pd.Timestamp('2019-02-08 00:00:00')
+date_90_percent = pd.Timestamp('2021-09-14 00:00:00')
 
 # 70% training
 trainingDataWithPrices = stocksPrices.loc[:date_70_percent]
@@ -575,12 +626,12 @@ print(prescientDict[list(prescientDict.keys())[150]])
 # now calculates/extract the real volatilities of the 3 assets
 real_volatilities = {}
 
-# now filter the rw volatilities between the start and end date
+# now filter the real volatilities between the start and end date
 real_volatility_startDate = pd.to_datetime('2010-01-04')
-real_volatility_endDate = pd.to_datetime('2023-01-03')
+real_volatility_endDate = pd.to_datetime('2024-05-21')
 
-df_volatility_aapl, df_volatility_ibm, df_volatility_mcd, volatility_dict_aapl, volatility_dict_ibm, volatility_dict_mcd = plot_volatility(prescientDict, real_volatility_startDate, real_volatility_endDate, 'PRESCIENT')
-
+# assets names are AAPL, IBM, MCD, KO, PEP, JNJ, ORCL, PFE, WMT
+df_volatility_aapl, df_volatility_ibm, df_volatility_mcd, df_volatility_ko, df_volatility_pep, df_volatility_jnj, df_volatility_orcl, df_volatility_pfe, df_volatility_wmt, volatility_dict_aapl, volatility_dict_ibm, volatility_dict_mcd, volatility_dict_ko, volatility_dict_pep, volatility_dict_jnj, volatility_dict_orcl, volatility_dict_pfe, volatility_dict_wmt = plot_volatility(prescientDict, real_volatility_startDate, real_volatility_endDate, 'PRESCIENT')
 
 # EXPANDING WINDOW DICT
 # NOW I IMPLEMENT AN EXPANDING WINDOW MODEL FOR EVERY QUARTER

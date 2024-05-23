@@ -136,43 +136,18 @@ with open("C:\\Users\\chiod\\Desktop\\MyData\\universita\\tesi\\openSourceImplem
 
     print(f"The mean value of the percentage change is {mean}%")
 '''
-import numpy as np
-import matplotlib.pyplot as plt
+import pandas as pd
 
+path = "experiments\\AAPL_rw_residuals.csv"
 
-def logistic_function(x, k=10, x_0=0.5):
-    """
-    Logistic function to calculate the lambda parameter.
-    
-    Args:
-    - x: The normalized day within the quarter.
-    - k: The steepness of the curve.
-    - x_0: The x-value of the sigmoid's midpoint.
+# Load data from CSV file
+data = pd.read_csv(path)
 
-    Returns:
-    - The lambda parameter as a value between 0 and 1.
-    """
-    return 1 / (1 + np.exp(-k * (x - x_0)))
+# Calculate the sum of the residuals
+total_residuals = (data['Residuals_rw']).sum()
 
-x = np.linspace(0, 1, 500)
+# Multiply the sum by 100
+result = total_residuals
 
-def logistic_function(x, k):
-    return 1 / (1 + np.exp(-k * (x - 0.5)))
-
-# Plot for different values of k to visually inspect the conditions
-k_values = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]  # Example range of k values
-
-plt.figure(figsize=(10, 6))
-
-for k in k_values:
-    plt.plot(x, logistic_function(x, k), label=f'Logistic k={k}')
-
-# Adding the linear function
-plt.plot(x, x, label='Linear function', linestyle='--', color='black')
-
-plt.title('Comparison of Logistic Functions with Linear Function')
-plt.xlabel('x')
-plt.ylabel('f(x)')
-plt.legend()
-plt.grid(True)
-plt.show()
+# Print the result
+print(f"The sum of the residuals multiplied by 100 is: {result}")
