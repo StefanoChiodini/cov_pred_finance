@@ -136,18 +136,7 @@ with open("C:\\Users\\chiod\\Desktop\\MyData\\universita\\tesi\\openSourceImplem
 
     print(f"The mean value of the percentage change is {mean}%")
 '''
-import pandas as pd
+import cairocffi
+print(cairocffi.__version__)
 
-path = "experiments\\AAPL_rw_residuals.csv"
 
-# Load data from CSV file
-data = pd.read_csv(path)
-
-# Calculate the sum of the residuals
-total_residuals = (data['Residuals_rw']).sum()
-
-# Multiply the sum by 100
-result = total_residuals
-
-# Print the result
-print(f"The sum of the residuals multiplied by 100 is: {result}")

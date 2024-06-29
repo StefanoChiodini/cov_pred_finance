@@ -5,8 +5,10 @@
 #     - HYBRID PREDICTOR
 
 import numpy as np
+import matplotlib as mpl
 import pandas as pd
 import matplotlib.pyplot as plt
+partialPath = "C:\\Users\\chiod\\Downloads\\"
 
 
 def empiricalCovarianceMatrix(quarterCovarianceMatrixList):
@@ -259,11 +261,11 @@ def hybridPredictor(uniformlyDistributedReturns, datasetWithPercentageChange, ex
             day_number = 0
 
         # Calculate the lambda parameter using the linear function
-        #x_value = linear_increment(day_number, numberOfDaysInQuarter)  # normalize day number to range [0, 1]
-        #lambdaParam = x_value  # apply the linear function
+        x_value = linear_increment(day_number, numberOfDaysInQuarter)  # normalize day number to range [0, 1]
+        lambdaParam = x_value  # apply the linear function
 
         # Calculate the lambda parameter using the logistic function
-        lambdaParam = logistic_function(day_number / numberOfDaysInQuarter, k)
+        #lambdaParam = logistic_function(day_number / numberOfDaysInQuarter, k)
 
         # Calculate the lambda parameter using the exponential function
         #lambdaParam = exponential_increment(day_number / numberOfDaysInQuarter, k)  # apply the exponential function
@@ -283,39 +285,53 @@ def hybridPredictor(uniformlyDistributedReturns, datasetWithPercentageChange, ex
         # assert that lambda value is always between 0 and 1, if it is not print the value of lambda and the day number
         assert 0 <= lambdaParam <= 1, f"Lambda value is not between 0 and 1: lambda = {lambdaParam}, day_number = {day_number}"
 
-    '''
+ 
     #######################################################################################
-    # save the lambda values list in a file
-    with open("C:\\Users\\chiod\\Desktop\\MyData\\universita\\tesi\\openSourceImplementations\\cov_pred_finance\\experiments\\data\\lambdaValuesListToFix.txt", "w") as file:
-        for item in lambdaValuesList:
-            file.write("%s\n" % item)
+    # Sample lambdaValuesList for demonstration
+    #lambdaValuesList = [i/365 for i in range(366)] # Remove this line in your actual code
 
-    midOfTheQuarterList = [] # for testing purposes, delete it; this list contains the number of the days that are in the middle of the quarter
-    endOfTheQuarterList = [0, 57, 119, 181, 245, 308] # for testing purposes, delete it; this list contains the number of the days that are in the end of the quarter
+    # midOfTheQuarterList = [] # for testing purposes, delete it; this list contains the number of the days that are in the middle of the quarter
+    # endOfTheQuarterList = [0, 57, 119, 181, 245, 308] # for testing purposes, delete it; this list contains the number of the days that are in the end of the quarter
 
-    for i in range(1, 6):
-        midOfTheQuarterList.append((endOfTheQuarterList[i-1] + endOfTheQuarterList[i]) // 2)
+    print("length of lambda values list: ", len(lambdaValuesList)) # testing purposes, delete later
 
-    print("lenght of lambda values list: ", len(lambdaValuesList)) # testing purposes, delete later
-    # plot the lambda values
-    plt.figure(figsize=(14, 6))
-    plt.plot(lambdaValuesList)
+    # for i in range(1, 6):
+    #     midOfTheQuarterList.append((endOfTheQuarterList[i-1] + endOfTheQuarterList[i]) // 2)
+    
+    mpl.rcParams['text.usetex'] = True
+    mpl.rcParams['font.family'] = 'serif'
+    mpl.rcParams['font.serif'] = ['Times New Roman'] + mpl.rcParams['font.serif']
+    mpl.rcParams['font.size'] = 36
+    mpl.rcParams['figure.figsize'] = [14, 8]
+    
+    # Create plot
+    fig, ax = plt.subplots(figsize=(14, 8))
+    ax.plot(lambdaValuesList)
 
-    # insert in the chart a vertical dotted line that represents the middle of the quarter
-    for mid in midOfTheQuarterList:
-        plt.axvline(x=mid, color='r', linestyle='--')
-
-    for end in endOfTheQuarterList:
-        plt.axvline(x=end, color='blue', linestyle='--')
+    # Set face color of the figure and axes to white
+    # fig.patch.set_facecolor('white')
+    # ax.set_facecolor('white')
 
     # on the y axis write exactly the numbers 0, 0.2, 0.4, 0.5, 0.6, 0.8, 1.0
     yAxisNumbers = [0, 0.2, 0.4, 0.5, 0.6, 0.8, 1.0]
-    plt.yticks(yAxisNumbers)    
+    plt.yticks(yAxisNumbers)
 
-    plt.title('Lambda values')
+    plt.title('Lambda values for every quarter')
     plt.xlabel('Day number')
-    plt.ylabel('Lambda')
+    # use the latex notation to write the lambda values
+    plt.ylabel(r'$\lambda$ Values')
+    plt.xlim(0, len(lambdaValuesList))
+    plt.ylim(0.0, 1.0)
+
+    # Disable default style
+    plt.style.use('default')
+    
     plt.show()
+    
+    # save the chart in an eps format
+    plt.savefig(partialPath + 'lambda_values_chart.png', format='png', dpi=1000)
+
+    print("file saved")
+
     #######################################################################################
-    '''
     return hybridModelDict

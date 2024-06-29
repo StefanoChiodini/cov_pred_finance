@@ -5,6 +5,7 @@ import csv
 
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 import matplotlib.cm as cm
 
 import seaborn as sns
@@ -32,7 +33,7 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
-
+partialpath = "C:\\Users\\chiod\\Downloads\\"
 # Mean Loglikelihood
 mean_loglikelihood = {
     'RW': [8.1, 17.8, 25.6],
@@ -208,7 +209,7 @@ def plotPerformancePredictor(predictorValues, predictorMeanlogLikelihoodValues, 
 
     # Plot the mean log-likelihood values for the predictor
     color = 'tab:blue'
-    ax1.set_xlabel(f'{hyperParameterName} values')
+    ax1.set_xlabel(r'$\beta$ values')
     ax1.set_ylabel('Mean log-likelihood', color=color)
     ax1.plot(predictorValues, predictorMeanlogLikelihoodValues, color=color, label=f'Loglikelihood {predictor_name}')
     ax1.tick_params(axis='y', labelcolor=color)
@@ -226,7 +227,7 @@ def plotPerformancePredictor(predictorValues, predictorMeanlogLikelihoodValues, 
     # scatter the points by writing the memory value and the loglikelihood value on the chart
     for point in max_points:
         ax1.scatter(point, max_log_likelihood, color='green')
-        plt.text(point, max_log_likelihood, f' x: {point:.0f}\n y: {max_log_likelihood:.1f}', fontsize=9, color='green', ha='center', va='bottom')
+        plt.text(point, max_log_likelihood, f' x: {point:.2f}\n y: {max_log_likelihood:.1f}\n ', fontsize=9, color='blue', ha='center', va='bottom')
 
     # Add a second y-axis for the regret values
     ax2 = ax1.twinx()  
@@ -245,7 +246,7 @@ def plotPerformancePredictor(predictorValues, predictorMeanlogLikelihoodValues, 
     # scatter the points by writing the beta value and the regret value on the chart
     for point in min_points:
         ax2.scatter(point, min_regret, color='red')
-        plt.text(point, min_regret, f' x: {point:.0f}\n y: {min_regret:.1f}', fontsize=9, color='red', ha='center', va='bottom')
+        plt.text(point, min_regret, f' \nx:{point:.2f}\n y:{min_regret:.1f}', fontsize=9, color='red', ha='center', va='top')
 
     # print also the y value of the max_points and min_points
     max_pointsIndex = [predictorValues.index(point) for point in max_points]
@@ -262,16 +263,19 @@ def plotPerformancePredictor(predictorValues, predictorMeanlogLikelihoodValues, 
     # Create the legend, which combines both axes
     lines, labels = ax1.get_legend_handles_labels()
     lines2, labels2 = ax2.get_legend_handles_labels()
-    ax2.legend(lines + lines2, labels + labels2, loc='upper right')
+    ax2.legend(lines + lines2, labels + labels2, loc='center')
 
     # Add title
-    plt.title(f"Performance of {predictor_name} for different {hyperParameterName} values")
+    plt.title(rf"Performance of {predictor_name} for different $\beta$ values")
 
     # Set the x-axis limits
     ax1.set_xlim(left=predictorValues[0], right=predictorValues[-1])
 
     fig.tight_layout()  # to ensure the right y-label is not slightly clipped
     plt.show()
+    
+    # save the image in an eps file
+    fig.savefig(partialpath + "plots_HybridEwma_validation_performance.eps", format='eps', dpi= 1000)
 
 
 # code for plotting and compare inside a unique chart prices and volatilities for mgarch predictions
@@ -280,6 +284,7 @@ def plot_prices_volatilities_for_predictor(stock_prices, real_volatility, real_v
     '''
     Function to plot prices and volatilities for a specific predictor
     '''
+    
     # filter the real volatility between the start and end date
     real_volatility_startDate = pd.to_datetime(real_volatility_startDate)
     real_volatility_endDate = pd.to_datetime(real_volatility_endDate)
@@ -287,36 +292,49 @@ def plot_prices_volatilities_for_predictor(stock_prices, real_volatility, real_v
     # Correct way to filter using & operator and parentheses
     real_volatility_filtered = real_volatility[(real_volatility.index >= real_volatility_startDate) & (real_volatility.index <= real_volatility_endDate)]
     predictorVolatility = predictorVolatility[(predictorVolatility.index >= real_volatility_startDate) & (predictorVolatility.index <= real_volatility_endDate)]
-    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(16, 11), sharex=True)
+    
+    # Plotting the lambda values
+    mpl.rcParams['text.usetex'] = True
+    mpl.rcParams['font.family'] = 'serif'
+    mpl.rcParams['font.serif'] = ['Times New Roman'] + mpl.rcParams['font.serif']
+    mpl.rcParams['font.size'] = 24
+    mpl.rcParams['figure.figsize'] = [14, 8]
+    fig, (ax2) = plt.subplots(1, 1, figsize=(14, 8), sharex=True)
 
     # Plot stock prices
-    ax1.plot(stock_prices[asset_name], label=f'{asset_name} Price', color='green')
-    ax1.set_title(f'{asset_name} Stock Prices')
-    ax1.set_ylabel('Price(dollars)')
-    ax1.legend(loc='upper left')
+    # ax1.plot(stock_prices[asset_name], label=f'{asset_name} Price', color='green')
+    # ax1.set_title(f'{asset_name} Stock Prices')
+    # ax1.set_ylabel('Price(dollars)')
+    # ax1.legend(loc='upper left')
     
     # Plot real and rolling window volatilities
     ax2.plot(real_volatility_filtered, label=f'Real {asset_name} Volatility', color='blue')
     ax2.plot(predictorVolatility, label=f'{predictor_name} {asset_name} Volatility', color='orange', linestyle='--')
     ax2.set_title(f'{asset_name} Volatility: Real vs {predictor_name}')
     ax2.set_xlabel('Time(days)')
-    ax2.set_ylabel('Volatility(%)')
+    ax2.set_ylabel('Volatility(\%)')
     ax2.legend(loc='upper left')
 
     # Set x-axis limits to match the start and end dates
-    ax1.set_xlim(left=real_volatility_startDate, right=real_volatility_endDate)
+    #ax1.set_xlim(left=real_volatility_startDate, right=real_volatility_endDate)
     ax2.set_xlim(left=real_volatility_startDate, right=real_volatility_endDate)
 
     # Adding vertical lines for specific events
-    ax1.axvline(pd.Timestamp('2020-02-24'), color='gray', linestyle='--', lw=2)  # COVID start
-    ax1.axvline(pd.Timestamp('2022-02-24'), color='red', linestyle='--', lw=2)  # Ukraine War start
+    # ax1.axvline(pd.Timestamp('2020-02-24'), color='gray', linestyle='--', lw=2)  # COVID start
+    # ax1.axvline(pd.Timestamp('2022-02-24'), color='red', linestyle='--', lw=2)  # Ukraine War start
     
     # Adding vertical lines for specific events
-    ax2.axvline(pd.Timestamp('2020-02-24'), color='gray', linestyle='--', lw=2)  # COVID start
-    ax2.axvline(pd.Timestamp('2022-02-24'), color='red', linestyle='--', lw=2)  # Ukraine War start
+    # ax2.axvline(pd.Timestamp('2020-02-24'), color='gray', linestyle='--', lw=2)  # COVID start
+    # ax2.axvline(pd.Timestamp('2022-02-24'), color='red', linestyle='--', lw=2)  # Ukraine War start
+    
+    # Disable default style
+    plt.style.use('default')
     # Show the plot
-    plt.tight_layout()
     plt.show()
+    
+    # save the image in an eps file if the predictor is hybrid ewma and the asset is IBM
+    if predictor_name == "EWMA" and asset_name == "IBM":
+        fig.savefig(partialpath + "plots_Ewma_volatilities_divergence.svg", format='svg', dpi= 1000)
 
 
 def plot_volatility(predictorDict, start_date, end_date, predictor_name):
